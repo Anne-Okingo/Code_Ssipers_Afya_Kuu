@@ -1,6 +1,27 @@
-# Cervical Cancer Risk Assessment System
+# Cervical Cancer Risk Assessment System - Afya Kuu
 
-A comprehensive AI-powered web application for cervical cancer risk assessment using decision tree algorithms. This system provides healthcare professionals with intelligent risk evaluation and personalized medical recommendations.
+A comprehensive AI-powered web application for cervical cancer risk assessment using Random Forest machine learning algorithms. This system provides healthcare professionals with intelligent risk evaluation and personalized medical recommendations.
+
+## 🚀 Quick Start
+
+### Run the Application (2 terminals needed)
+
+**Terminal 1 - Backend (Random Forest API):**
+```bash
+source venv/bin/activate && python flask_rf_api.py
+# API runs on http://localhost:5001
+```
+
+**Terminal 2 - Frontend (Afya Kuu Platform):**
+```bash
+cd Frontend/Code-Her-Care/afya-kuu && npm run dev
+# Web app runs on http://localhost:3000
+```
+
+**Access the Application:**
+- 🌐 **Main App**: http://localhost:3000
+- 🏥 **Doctor Dashboard**: http://localhost:3000/dashboard/doctor
+- 📊 **API Health**: http://localhost:5001/health
 
 ## 🎯 Project Overview
 
@@ -93,8 +114,15 @@ cd Decision-Tree-Algorithm
 
 2. **Backend Setup**
 ```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
 # Install Python dependencies
 pip install -r requirements.txt
+
+# Train the Random Forest model (if not already done)
+python train_random_forest_model.py
 
 # Verify models are present
 ls -la *.pkl
@@ -103,30 +131,52 @@ ls -la *.pkl
 3. **Frontend Setup**
 ```bash
 # Navigate to frontend directory
-cd Frontend/Code-Her-Care/my-frontend
+cd Frontend/Code-Her-Care/afya-kuu
 
 # Install dependencies
 npm install
 
-# Set up environment variables
-echo "NEXT_PUBLIC_API_URL=http://localhost:5000" > .env.local
+# Set up environment variables (API points to port 5001)
+echo "NEXT_PUBLIC_API_URL=http://localhost:5001" > .env.local
 ```
 
 ### Running the Application
 
-1. **Start the Backend API**
+#### Prerequisites
+Make sure you have trained the Random Forest model first:
+```bash
+# From project root (if models don't exist)
+source venv/bin/activate
+python train_random_forest_model.py
+```
+
+#### 1. Start the Backend API (Random Forest Model)
 ```bash
 # From project root
-python app.py
+source venv/bin/activate && python flask_rf_api.py
 ```
-The API will be available at `http://localhost:5000`
+The API will be available at `http://localhost:5001`
 
-2. **Start the Frontend**
+**Backend Features:**
+- Random Forest model with 50% accuracy on small dataset
+- Health check endpoint: `GET http://localhost:5001/health`
+- Prediction endpoint: `POST http://localhost:5001/predict`
+- All ML components loaded: model, encoders, feature selector
+
+#### 2. Start the Frontend (Afya Kuu Platform)
 ```bash
-# From Frontend/Code-Her-Care/my-frontend
+# From Frontend/Code-Her-Care/afya-kuu
+cd Frontend/Code-Her-Care/afya-kuu
 npm run dev
 ```
-The web application will be available at `http://localhost:3001`
+The web application will be available at `http://localhost:3000`
+
+**Frontend Features:**
+- Mobile-first responsive design
+- Bilingual support (English/Swahili)
+- Doctor and Admin dashboards
+- Real-time risk assessment
+- Educational content
 
 ### Running Without Firebase (Simplified Setup)
 
@@ -215,12 +265,12 @@ Decision-Tree-Algorithm/
 ### Backend Testing
 ```bash
 # Test API health
-curl http://localhost:5000/health
+curl http://localhost:5001/health
 
 # Test prediction endpoint
-curl -X POST http://localhost:5000/predict \
+curl -X POST http://localhost:5001/predict \
   -H "Content-Type: application/json" \
-  -d '{"age": "28", "smoking": "No", ...}'
+  -d '{"age": "25", "ageFirstSex": "18", "sexualPartners": "2", "smoking": "N", "stdsHistory": "N", "region": "Nairobi", "insurance": "Y", "hpvTest": "NEGATIVE", "papSmear": "N", "lastScreeningType": "PAP SMEAR"}'
 ```
 
 ### Integration Testing
@@ -229,15 +279,17 @@ python test_integration.py
 ```
 
 ### Frontend Testing
-- Navigate to `http://localhost:3001/risk-assessment`
-- Fill out the assessment form
-- Verify real-time API integration
+- Navigate to `http://localhost:3000`
+- Go to "Start Assessment" to access the risk assessment form
+- Fill out the patient assessment form in the doctor dashboard
+- Verify real-time API integration with the Random Forest model
 - Check error handling and loading states
+- Test bilingual functionality (English/Swahili)
 
 ## 🔧 Configuration
 
 ### Environment Variables
-- `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:5000)
+- `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:5001)
 
 ### Model Configuration
 - Models are loaded automatically on backend startup
@@ -371,10 +423,12 @@ For questions, issues, or contributions:
 - **Technical Support**: Check existing issues or create a new one
 
 ### Quick Links
-- 🌐 **Frontend**: http://localhost:3001/risk-assessment
-- 🔧 **Backend API**: http://localhost:5000
-- 📊 **Health Check**: http://localhost:5000/health
-- 📖 **API Docs**: http://localhost:5000/
+- 🌐 **Frontend**: http://localhost:3000
+- 🏥 **Doctor Dashboard**: http://localhost:3000/dashboard/doctor
+- 👨‍💼 **Admin Dashboard**: http://localhost:3000/dashboard/admin
+- 🔧 **Backend API**: http://localhost:5001
+- 📊 **Health Check**: http://localhost:5001/health
+- 📖 **API Docs**: http://localhost:5001/
 
 ---
 
