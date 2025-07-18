@@ -1,0 +1,491 @@
+.jp-Notebook-merge .jp-Metadata-merge {
+  margin-bottom: 20px;
+}
+
+.jp-Notebook-merge .jp-Metadata-merge .jp-CollapsiblePanel {
+  border: solid black thin;
+}
+
+.jp-Notebook-merge .jp-Cell-merge {
+  background-color: var(--jp-layout-color1);
+}
+
+/* Alternative for showing single cell when cells are equal */
+.jp-Notebook-merge .jp-Merge-unchanged {
+  margin-left: 10%;
+  width: 80%;
+}
+
+.jp-Notebook-merge .jp-merge-celldragdrop > .lm-Panel:not(:first-child) {
+  margin-top: 20px;
+}
+
+.jp-Notebook-merge .jp-Output-result img {
+  max-width: 100%;
+}
+
+.jp-Notebook-merge .jp-Merge-cellHeader {
+  display: flex;
+  background-color: var(--jp-layout-color2);
+  border-top: solid #ccc 1px;
+}
+
+.jp-Notebook-merge .jp-Merge-cellHeader > .lm-Widget {
+  margin-right: 0.5em;
+}
+
+.jp-Notebook-merge .jp-Merge-cellHeader-title {
+  flex-grow: 1;
+}
+
+.jp-Notebook-merge .jp-conflicted-cellId .jp-Merge-cellHeader-title {
+  align-self: center;
+  text-align: center;
+  color: var(--jp-ui-font-color2);
+  /* For now, all presence of this header implies conflict */
+  background-color: var(--jp-error-color3);
+}
+
+.jp-Notebook-merge .jp-DragPanel-dragHandle {
+  height: 18px;
+  width: 12px;
+}
+
+.jp-Merge-dragimage-output {
+  background-color: var(--jp-layout-color1);
+  border: solid gray thin;
+  max-width: 33%;
+}
+
+.jp-Cell-merge.lm-mod-drag-image {
+  background-color: var(--jp-layout-color1);
+}
+
+.jp-Cell-merge.lm-mod-drag-image .jp-Merge-cellHeader {
+  display: none;
+}
+
+.jp-Merge-output-drop-delete {
+  border: 3px dashed var(--jp-nbdime-output-color2);
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.jp-Notebook-merge .cm-merge-pane-deleted,
+.jp-Notebook-merge .cm-merge-pane-added {
+  width: 100%;
+}
+
+.jp-Notebook-merge .cm-line {
+  /* enable positioning pseudo-elements relative to line */
+  position: relative;
+}
+
+.jp-Notebook-merge .cm-merge-spacer {
+  background-color: #eee;
+}
+
+.jp-Notebook-merge .cm-merge-r-chunk {
+  background-color: var(--jp-merge-remote-color2);
+}
+
+/* border-top/bottom without taking up space */
+.jp-Notebook-merge .cm-merge-r-chunk-start::before,
+.jp-Notebook-merge .cm-merge-m-chunk-start-remote::before,
+.jp-Notebook-merge .cm-merge-r-chunk-end::after,
+.jp-Notebook-merge .cm-merge-m-chunk-end-remote::after {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: var(--jp-merge-remote-color1);
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge .cm-merge-r-connect {
+  fill: var(--jp-merge-remote-color2);
+  stroke: var(--jp-merge-remote-color1);
+  stroke-width: 1px;
+}
+
+.jp-Notebook-merge .cm-line .cm-merge-r-inserted {
+  background-color: var(--jp-merge-remote-color1);
+}
+
+.jp-Notebook-merge
+  .cm-merge-r-chunk-end-empty::after
+  + .cm-linewidget
+  .cm-merge-spacer,
+.jp-Notebook-merge
+  .cm-merge-m-chunk-end-remote-empty::after
+  + .cm-linewidget
+  .cm-merge-spacer {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: var(--jp-merge-remote-color1);
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge .cm-merge-l-chunk {
+  background-color: var(--jp-merge-local-color2);
+}
+
+/* border-top/bottom without taking up space */
+.jp-Notebook-merge .cm-merge-l-chunk-start::before,
+.jp-Notebook-merge .cm-merge-m-chunk-start-local::before,
+.jp-Notebook-merge .cm-merge-l-chunk-end::after,
+.jp-Notebook-merge .cm-merge-m-chunk-end-local::after {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: var(--jp-merge-local-color1);
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge .cm-merge-l-connect {
+  fill: var(--jp-merge-local-color2);
+  stroke: var(--jp-merge-local-color1);
+  stroke-width: 1px;
+}
+
+.jp-Notebook-merge .cm-line .cm-merge-l-inserted {
+  background-color: var(--jp-merge-local-color1);
+}
+
+.jp-Notebook-merge
+  .cm-merge-l-chunk-end-empty
+  + .cm-linewidget
+  .cm-merge-spacer,
+.jp-Notebook-merge
+  .cm-merge-m-chunk-end-local-empty
+  + .cm-linewidget
+  .cm-merge-spacer {
+  background-color: var(--jp-merge-local-color3);
+  border-bottom: 1px solid var(--jp-merge-local-color1);
+}
+
+.jp-Notebook-merge .cm-merge-m-chunk-custom {
+  background-color: #ffb;
+}
+
+.jp-Notebook-merge .cm-merge-m-chunk-start-custom::before,
+.jp-Notebook-merge .cm-merge-m-chunk-end-custom::after {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: #fe6;
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge .cm-merge-l-chunk.cm-merge-r-chunk {
+  background: var(--jp-merge-both-color2);
+}
+
+.jp-Notebook-merge .cm-merge-l-chunk-start.cm-merge-r-chunk-start::before,
+.jp-Notebook-merge .cm-merge-l-chunk-end.cm-merge-r-chunk-end::after {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: var(--jp-merge-both-color1);
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge
+  .cm-merge-l-chunk-end-empty.cm-merge-r-chunk-end-empty
+  + .cm-linewidget
+  .cm-merge-spacer,
+.jp-Notebook-merge
+  .cm-merge-m-chunk-end-remote-empty.cm-merge-m-chunk-end-local-empty
+  + .cm-linewidget
+  .cm-merge-spacer {
+  background-color: var(--jp-merge-both-color2);
+  border-bottom: 1px solid var(--jp-merge-both-color1);
+}
+
+.jp-Notebook-merge .cm-merge-r-chunk-end-empty,
+.jp-Notebook-merge .cm-merge-l-chunk-end-empty,
+.jp-Notebook-merge .cm-merge-m-chunk-end-empty,
+.jp-Notebook-merge .cm-merge-m-chunk-end-either-empty,
+.jp-Notebook-merge .cm-merge-m-chunk-end-remote-empty,
+.jp-Notebook-merge .cm-merge-m-chunk-end-local-empty,
+.jp-Notebook-merge .CodeMirror pre.cm-line {
+  z-index: 3;
+}
+
+.jp-Notebook-merge .cm-merge-m-chunk-start-either::before,
+.jp-Notebook-merge
+  .cm-merge-m-chunk-start-mixed:not(.cm-merge-m-chunk-custom)::before {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: var(--jp-merge-either-color1);
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge .cm-merge-m-chunk-end-either::after,
+.jp-Notebook-merge
+  .cm-merge-m-chunk-end-mixed:not(.cm-merge-m-chunk-custom)::after {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: var(--jp-merge-either-color1);
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge
+  .cm-merge-m-chunk-end-either-empty::after
+  + .cm-linewidget
+  .cm-merge-spacer {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: var(--jp-merge-either-color1);
+  display: block;
+  position: absolute;
+  left: 0px;
+}
+
+.jp-Notebook-merge .cm-central-editor .cm-line .cm-merge-m-deleted,
+.jp-Notebook-merge .cm-central-editor .cm-line .cm-merge-l-deleted,
+.jp-Notebook-merge .cm-central-editor .cm-line .cm-merge-r-deleted {
+  background-color: initial;
+}
+
+.jp-Notebook-merge .CodeMirror-gutter-wrapper {
+  top: 0;
+  bottom: 0;
+}
+
+.jp-Notebook-merge .jp-Merge-oneway-local,
+.jp-Notebook-merge .jp-Merge-oneway-remote {
+  width: 75%;
+}
+
+.jp-Notebook-merge .jp-Merge-oneway-remote {
+  margin-left: 25%;
+}
+
+.jp-Notebook-merge .jp-Merge-oneway-local .cm-merge-pane {
+  background-color: var(--jp-merge-local-color2);
+}
+
+.jp-Notebook-merge .jp-Merge-oneway-remote .cm-merge-pane {
+  background-color: var(--jp-merge-remote-color2);
+}
+
+.jp-Notebook-merge .jp-Merge-gutter-picker {
+  width: 16px;
+  text-align: right;
+}
+
+.jp-Notebook-merge .jp-Merge-gutter-conflict {
+  width: 16px;
+  color: #b00;
+  text-align: right;
+}
+
+.jp-Notebook-merge .jp-Merge-conflict {
+  background-color: var(--jp-merge-both-color2);
+}
+
+.jp-Notebook-merge .cm-merge-pane.cm-left-editor.jp-mod-missing {
+  background-color: var(--jp-merge-local-color2);
+}
+
+.jp-Notebook-merge .cm-merge-pane.cm-merge-right-editor.jp-mod-missing {
+  background-color: var(--jp-merge-remote-color2);
+}
+
+.jp-Notebook-merge
+  .jp-Cell-merge.jp-mod-todelete
+  > .lm-Widget:not(.jp-Merge-cellHeader) {
+  opacity: 0.5;
+  filter: alpha(opacity = 50);
+}
+
+.jp-Notebook-merge .jp-Cell-merge.jp-mod-todelete .jp-Merge-cellHeader {
+  background-color: var(--jp-merge-both-color2);
+}
+
+.jp-Cell-merge.jp-mod-clearoutputs .jp-Cellrow-outputs {
+  display: none;
+}
+
+.jp-Notebook-merge .jp-Cellrow-outputs .jp-OutputArea {
+  border: #666 solid 1pt;
+}
+
+.jp-Notebook-merge
+  .jp-Cellrow-outputs
+  .lm-FlexPanel:last-of-type
+  .jp-OutputArea {
+  margin-top: 5px;
+}
+
+.jp-Notebook-merge
+  .jp-Cellrow-outputs.jp-conflicted-outputs
+  .jp-CollapsiblePanel-header {
+  background-color: var(--jp-merge-both-color2);
+}
+
+.jp-Notebook-merge
+  .jp-Cellrow-outputs.jp-conflicted-outputs
+  .jp-CollapsiblePanel-header {
+  background-color: var(--jp-merge-both-color2);
+  border-top: var(--jp-merge-both-color1) solid 1pt;
+}
+
+.jp-Notebook-merge .jp-Cellrow-outputs.jp-conflicted-outputs {
+  border: var(--jp-merge-both-color1) solid 1pt;
+}
+
+.jp-conflicted-outputs-button {
+  display: inline;
+  margin-left: 20px;
+}
+
+.jp-Notebook-merge .jp-Diff-renderedOutput .jp-Merge-local {
+  background-color: var(--jp-merge-local-color2);
+}
+
+.jp-Notebook-merge .jp-Diff-renderedOutput .jp-Merge-remote {
+  background-color: var(--jp-merge-remote-color2);
+}
+
+.jp-Notebook-merge .jp-Cellrow-outputs .jp-OutputArea {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-wrap: nowrap;
+  min-height: 2em;
+}
+
+.jp-Notebook-merge .jp-Merge-oneway-local .jp-Cellrow-outputs,
+.jp-Notebook-merge .jp-Merge-oneway-remote .jp-Cellrow-outputs {
+  border-top: var(--jp-nbdime-output-color1) solid 1pt;
+}
+
+.jp-Notebook-merge .jp-Output:first-child {
+  margin-top: 0;
+}
+
+.jp-Merge-notebook-controls {
+  justify-content: flex-end;
+  margin-bottom: 10px;
+  padding: 5px;
+  background-color: var(--jp-layout-color2);
+  border: solid 1px var(--jp-ui-font-color2);
+}
+
+.jp-Merge-notebook-controls:empty {
+  display: none;
+}
+
+.jp-Notebook-merge label[disabled] {
+  color: var(--jp-ui-font-color3);
+}
+
+/* This fixes an alignment issue between gutter background
+ and gutter elements, but not sure *why* this is needed.
+ Might be fixing a symptom rather than the cause, but it
+ works for now.
+ */
+.jp-Notebook-merge .CodeMirror-gutter-wrapper {
+  margin-left: calc(-1 * var(--jp-code-padding));
+}
+
+/* Display chunks of conflicted cell with a start and end marker.
+ Add a pseudo-element at start of chunk with button to mark chunk as resolved
+*/
+
+.jp-Notebook-merge .jp-conflicted-cells {
+  border: solid 2px var(--jp-error-color2);
+}
+
+.jp-Notebook-merge .jp-conflicted-cells .jp-conflicted-cells-header {
+  background-color: var(--jp-error-color3);
+  display: flex;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+  padding-left: 2em;
+  padding-right: 2em;
+}
+
+.jp-Notebook-merge .jp-conflicted-cells .jp-conflicted-cells-button {
+  margin-left: auto;
+}
+
+.jp-Notebook-merge .jp-conflicted-cells > .jp-DragPanel {
+  padding: 4px;
+}
+
+/*
+Output mimetype selection:
+*/
+
+.jp-Notebook-merge .jp-Diff-outputPanel .jp-Diff-outputMenu {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0);
+  background-color: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  padding: 3px 5px;
+  border: var(--jp-border-width) solid var(--jp-cell-editor-border-color);
+  z-index: 10;
+}
+
+.jp-Notebook-merge .jp-Diff-outputPanel:hover .jp-Diff-outputMenu {
+  display: initial;
+}
+
+.jp-Notebook-merge .jp-Diff-trustOutputButton {
+  display: none;
+}
+
+.jp-Notebook-merge .jp-Diff-trustCandidate .jp-Diff-trustOutputButton {
+  display: initial;
+}
+
+.jp-Notebook-merge
+  .jp-Diff-outputPanel:not(.jp-Diff-trustCandidate)
+  .jp-diff-base64Output
+  + .jp-Diff-outputMenu {
+  display: none;
+}
+
+.jp-Notebook-merge
+  .jp-Diff-outputPanel
+  .jp-Diff-outputMenu
+  > :not(:first-child) {
+  margin-left: 5px;
+}
+
+.jp-Diff-outputsContainer > .lm-Widget:not(:last-child) {
+  padding-bottom: 6px;
+  min-height: 2em;
+  border-bottom: var(--jp-border-width) solid var(--jp-nbdime-output-color2);
+}
+
+.jp-Notebook-merge .jp-Diff-renderedOutput {
+  /* Ensure output is always large enough to show menu */
+  min-height: 2em;
+}

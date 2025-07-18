@@ -1,0 +1,19 @@
+.lm-FlexPanel {
+  display: flex;
+}
+
+.lm-FlexPanel.lm-mod-left-to-right {
+  flex-direction: row;
+}
+
+.lm-FlexPanel.lm-mod-right-to-left {
+  flex-direction: row-reverse;
+}
+
+.lm-FlexPanel.lm-mod-top-to-bottom {
+  flex-direction: column;
+}
+
+.lm-FlexPanel.lm-mod-bottom-to-top {
+  flex-direction: column-reverse;
+}
