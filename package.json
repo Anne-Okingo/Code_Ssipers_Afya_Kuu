@@ -1,0 +1,20 @@
+{
+  "name": "decision-tree-algorithm",
+  "version": "1.0.0",
+  "description": "A comprehensive AI-powered web application for cervical cancer risk assessment using decision tree algorithms. This system provides healthcare professionals with intelligent risk evaluation and personalized medical recommendations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anne-Okingo/Decision-Tree-Algorithm.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anne-Okingo/Decision-Tree-Algorithm/issues"
+  },
+  "homepage": "https://github.com/Anne-Okingo/Decision-Tree-Algorithm#readme"
+}

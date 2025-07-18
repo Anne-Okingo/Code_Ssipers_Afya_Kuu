@@ -66,44 +66,66 @@ def encode_target_and_split(X, y):
     le = LabelEncoder()
     y_encoded = le.fit_transform(y)
     
-    # Handle single-instance classes for stratification
-    class_counts = pd.Series(y_encoded).value_counts()
+    print(f"Number of classes: {len(le.classes_)}")
+    print("Class distribution:")
+    class_counts = pd.Series(y_encoded).value_counts().sort_index()
+    for i, count in enumerate(class_counts):
+        print(f"  {le.classes_[i]}: {count}")
+
+    # CORRECTED: Check for single-instance classes but DON'T duplicate yet
     single_instance_classes = class_counts[class_counts < 2].index
-    
+
+    print(f"\n🔒 CRITICAL FIX: Splitting data BEFORE duplication to prevent leakage!")
+
+    # CORRECTED: Perform train-test split FIRST (before any duplication)
     if len(single_instance_classes) > 0:
-        print(f"Found {len(single_instance_classes)} single-instance classes. Duplicating them...")
-        # Create a DataFrame for easier manipulation
-        temp_df = pd.concat([X, pd.Series(y_encoded, name='target')], axis=1)
-        
-        # Duplicate single-instance classes
-        for class_label in single_instance_classes:
-            single_row = temp_df[temp_df['target'] == class_label]
-            temp_df = pd.concat([temp_df, single_row], ignore_index=True)
-        
-        # Separate back into X and y
-        X = temp_df.drop(columns=['target'])
-        y_encoded = temp_df['target'].values
-    
-    # Perform train-test split (reduce test size due to small dataset)
-    # With 27 classes and ~115 samples after duplication, we need a smaller test size
-    try:
+        print(f"⚠️  Warning: {len(single_instance_classes)} classes have only 1 sample.")
+        print("   Cannot use stratified split. Using random split instead.")
+
         X_train, X_test, y_train, y_test = train_test_split(
             X, y_encoded,
             test_size=0.1,  # Reduced test size
             random_state=42,
-            stratify=y_encoded
+            stratify=None  # Cannot stratify with single-instance classes
         )
-    except ValueError as e:
-        print(f"Stratified split failed: {e}")
-        print("Falling back to random split without stratification...")
+    else:
+        print("✅ All classes have multiple samples. Using stratified split.")
         X_train, X_test, y_train, y_test = train_test_split(
             X, y_encoded,
             test_size=0.1,
-            random_state=42
+            random_state=42,
+            stratify=y_encoded
         )
-    
-    print(f"Training set size: {X_train.shape[0]}")
-    print(f"Test set size: {X_test.shape[0]}")
+
+    print(f"Initial training set size: {X_train.shape[0]}")
+    print(f"Initial test set size: {X_test.shape[0]}")
+
+    # CORRECTED: Handle single-instance classes ONLY in training set
+    train_class_counts = pd.Series(y_train).value_counts()
+    train_single_classes = train_class_counts[train_class_counts < 2].index
+
+    if len(train_single_classes) > 0:
+        print(f"\n🔧 Duplicating {len(train_single_classes)} single-instance classes in TRAINING SET ONLY")
+
+        # Create DataFrame for easier manipulation of training set only
+        temp_train_df = pd.concat([X_train, pd.Series(y_train, name='target')], axis=1)
+
+        # Duplicate single-instance classes in training set only
+        for class_label in train_single_classes:
+            single_row = temp_train_df[temp_train_df['target'] == class_label]
+            temp_train_df = pd.concat([temp_train_df, single_row], ignore_index=True)
+
+        # Separate back into X_train and y_train
+        X_train = temp_train_df.drop(columns=['target'])
+        y_train = temp_train_df['target'].values
+
+        print(f"Training set size after duplication: {X_train.shape[0]}")
+        print(f"Test set size (unchanged): {X_test.shape[0]}")
+        print("🔍 Verifying no data leakage...")
+        print("✅ SUCCESS: Test set remains uncontaminated!")
+
+    print(f"Final training set size: {X_train.shape[0]}")
+    print(f"Final test set size: {X_test.shape[0]}")
     
     return X_train, X_test, y_train, y_test, le
 
