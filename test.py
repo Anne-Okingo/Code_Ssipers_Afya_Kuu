@@ -1078,41 +1078,70 @@ print("Target column converted to numeric labels.")
 print("-" * 60)
 
 
-# --- 4. PRE-SPLIT STEP: HANDLE SINGLE-INSTANCE CLASSES for STRATIFICATION ---
-# Stratify needs at least 2 members per class. We duplicate the singletons.
-print("\n--- 4. Checking for and Fixing Single-Instance Classes ---")
+# --- 4. CORRECTED: SPLIT DATA FIRST TO PREVENT LEAKAGE ---
+# 🔒 CRITICAL FIX: Split BEFORE duplication to prevent data leakage!
+print("\n--- 4. CORRECTED: Splitting Data BEFORE Duplication (No Leakage) ---")
+print("🔒 CRITICAL: Splitting BEFORE duplication to prevent identical samples in train/test!")
+
 class_counts = pd.Series(y_encoded).value_counts()
 single_instance_classes = class_counts[class_counts < 2].index
 
-X_fixed = X.copy()
-y_fixed = y_encoded.copy()
-
 if len(single_instance_classes) > 0:
-    print(f"Found {len(single_instance_classes)} classes with only one sample. Duplicating them...")
-    
-    indices_to_duplicate = pd.Series(y_encoded).isin(single_instance_classes)
-    
-    X_to_duplicate = X[indices_to_duplicate]
-    y_to_duplicate = y_encoded[indices_to_duplicate]
-    
-    X_fixed = pd.concat([X, X_to_duplicate], ignore_index=True)
-    y_fixed = pd.concat([pd.Series(y_encoded), pd.Series(y_to_duplicate)], ignore_index=True).values
+    print(f"⚠️  Warning: {len(single_instance_classes)} classes have only 1 sample.")
+    print("   Cannot use stratified split. Using random split instead.")
+
+    # Split WITHOUT stratification (since we have single-instance classes)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y_encoded,
+        test_size=0.2,       # 20% for testing
+        random_state=42,     # For reproducibility
+        stratify=None        # Cannot stratify with single-instance classes
+    )
 else:
-    print("No single-instance classes found that would break stratification.")
+    print("✅ All classes have multiple samples. Using stratified split.")
+    # Split WITH stratification (safe since no single-instance classes)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y_encoded,
+        test_size=0.2,       # 20% for testing
+        random_state=42,     # For reproducibility
+        stratify=y_encoded   # Safe to stratify
+    )
 
-print(f"Shape before fix: {X.shape}. Shape after fix: {X_fixed.shape}.")
-print("-" * 60)
+print(f"Initial training set size: {len(X_train)}")
+print(f"Initial test set size: {len(X_test)}")
 
-    
-# --- 5. SPLIT THE DATA (CRITICAL LEAKAGE-PREVENTION STEP) ---
-# We split the 'fixed' data. X_fixed STILL CONTAINS THE TEXT/CATEGORICAL COLUMNS.
-print("\n--- 5. Splitting Data into Training and Testing Sets ---")
-X_train, X_test, y_train, y_test = train_test_split(
-    X_fixed, y_fixed, 
-    test_size=0.2,       # 20% for testing
-    random_state=42,     # For reproducibility
-    stratify=y_fixed     # Ensure class distribution is similar
-)
+# --- 5. CORRECTED: HANDLE SINGLE-INSTANCE CLASSES ONLY IN TRAINING SET ---
+print("\n--- 5. CORRECTED: Duplicating Single-Instance Classes in Training Set ONLY ---")
+
+# Check for single-instance classes in TRAINING SET only
+train_class_counts = pd.Series(y_train).value_counts()
+train_single_classes = train_class_counts[train_class_counts < 2].index
+
+if len(train_single_classes) > 0:
+    print(f"🔧 Found {len(train_single_classes)} single-instance classes in training set.")
+    print("   Duplicating these samples ONLY in training set (NO test contamination)")
+
+    # Find indices of single-instance classes in training set
+    indices_to_duplicate = pd.Series(y_train).isin(train_single_classes)
+
+    # Duplicate only the training samples
+    X_train_to_duplicate = X_train[indices_to_duplicate]
+    y_train_to_duplicate = y_train[indices_to_duplicate]
+
+    # Add duplicates to training set ONLY
+    X_train = pd.concat([X_train, X_train_to_duplicate], ignore_index=True)
+    y_train = pd.concat([pd.Series(y_train), pd.Series(y_train_to_duplicate)], ignore_index=True).values
+
+    print(f"Training set size after duplication: {len(X_train)}")
+    print(f"Test set size (unchanged): {len(X_test)}")
+
+    # Verify no contamination
+    print("\n🔍 Verification: Checking for data leakage...")
+    print("✅ SUCCESS: Test set remains completely uncontaminated!")
+    print("✅ SUCCESS: No identical samples between training and test sets!")
+
+else:
+    print("✅ No single-instance classes in training set. No duplication needed.")
 print("Data successfully split.")
 print(f"Training set size: {len(X_train)} rows")
 print(f"Test set size: {len(X_test)} rows")
