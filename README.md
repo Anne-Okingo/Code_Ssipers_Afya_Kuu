@@ -1,5 +1,6 @@
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Anne-Okingo/Code_Ssipers_Anfya_Kuu/HEAD?labpath=notebooks%2FAnfya_Kuu_Notebooks.ipynb)
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Anne-Okingo/Code_Ssipers_Anfya_Kuu/blob/main/notebooks/Anfya_Kuu_Notebooks.ipynb)
+[Open in Colab](https://colab.research.google.com/github/Anne-Okingo/Code_Ssipers_Anfya_Kuu/blob/main/Predicting_cervical_cancer_with_decision_trees_2025.ipynb)
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Anne-Okingo/Code_Ssipers_Anfya_Kuu/HEAD?labpath=Predicting_cervical_cancer_with_decision_trees_2025.ipynb)
+
 
 # Cervical Cancer Risk Assessment System
 
