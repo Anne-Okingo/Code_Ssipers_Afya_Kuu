@@ -1,11 +1,3 @@
-## 🔗 Launch Notebook
-
-[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Anne-Okingo/Code_Ssipers_Anfya_Kuu/blob/main/ibn/Predicting_cervical_cancer_with_decision_trees.ipynb)
-
-[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Anne-Okingo/Code_Ssipers_Anfya_Kuu/main?filepath=ibn/Predicting_cervical_cancer_with_decision_trees.ipynb)
-
-
-
 # Cervical Cancer Risk Assessment System
 
 A comprehensive AI-powered web application for cervical cancer risk assessment using decision tree algorithms. This system provides healthcare professionals with intelligent risk evaluation and personalized medical recommendations.
