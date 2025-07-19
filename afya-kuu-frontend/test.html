@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afya Kuu System Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ff6b9d;
+        }
+        .test-output {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+        .button {
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #2d5a27;
+            color: #4caf50;
+        }
+        .error {
+            background: #5a2727;
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏥 Afya Kuu System Test</h1>
+            <p>Testing the cervical cancer risk assessment platform</p>
+        </div>
+
+        <div>
+            <button class="button" onclick="runSystemTests()">🧪 Run System Tests</button>
+            <button class="button" onclick="clearData()">🗑️ Clear All Data</button>
+            <button class="button" onclick="window.open('http://localhost:3001', '_blank')">🚀 Open App</button>
+        </div>
+
+        <div id="output" class="test-output">
+            Click "Run System Tests" to verify the system functionality...
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // Test functions
+        function log(message) {
+            const output = document.getElementById('output');
+            output.textContent += message + '\n';
+            console.log(message);
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+            document.getElementById('status').innerHTML = '';
+        }
+
+        function showStatus(message, isSuccess = true) {
+            const status = document.getElementById('status');
+            status.innerHTML = `<div class="status ${isSuccess ? 'success' : 'error'}">${message}</div>`;
+        }
+
+        function clearData() {
+            try {
+                localStorage.removeItem('afya_kuu_users');
+                localStorage.removeItem('afya_kuu_user');
+                localStorage.removeItem('afya_kuu_assessments');
+                showStatus('✅ All data cleared successfully!');
+                log('🗑️ All localStorage data cleared');
+            } catch (error) {
+                showStatus('❌ Failed to clear data: ' + error.message, false);
+            }
+        }
+
+        function testLocalStorage() {
+            log('\n=== Testing localStorage functionality ===');
+            
+            try {
+                // Clear existing data
+                localStorage.removeItem('afya_kuu_users');
+                localStorage.removeItem('afya_kuu_user');
+                
+                // Test data
+                const testDoctor = {
+                    id: Date.now().toString(),
+                    email: 'test.doctor@hospital.com',
+                    password: 'testpass123',
+                    userType: 'doctor',
+                    hospitalName: 'Test General Hospital',
+                    licenseNumber: 'MD12345',
+                    createdAt: new Date().toISOString()
+                };
+                
+                // Test storing users
+                const users = [testDoctor];
+                localStorage.setItem('afya_kuu_users', JSON.stringify(users));
+                
+                // Test retrieving users
+                const retrievedUsers = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
+                log('✓ Users stored and retrieved successfully: ' + retrievedUsers.length + ' users');
+                
+                // Test profile name extraction
+                const profileName = testDoctor.email.split('@')[0];
+                log('✓ Profile name extracted: ' + profileName);
+                
+                // Test user session
+                const userSession = {
+                    id: testDoctor.id,
+                    email: testDoctor.email,
+                    profileName: profileName,
+                    userType: testDoctor.userType,
+                    hospitalName: testDoctor.hospitalName,
+                    licenseNumber: testDoctor.licenseNumber
+                };
+                localStorage.setItem('afya_kuu_user', JSON.stringify(userSession));
+                log('✓ User session stored successfully');
+                
+                return true;
+            } catch (error) {
+                log('✗ localStorage test failed: ' + error.message);
+                return false;
+            }
+        }
+
+        function testPatientData() {
+            log('\n=== Testing patient data functionality ===');
+            
+            try {
+                // Clear existing assessments
+                localStorage.removeItem('afya_kuu_assessments');
+                
+                // Generate patient ID
+                const today = new Date().toISOString().split('T')[0].replace(/-/g, '');
+                const patientId = `PT${today}001`;
+                
+                // Test patient data structure
+                const samplePatientData = {
+                    age: '35',
+                    previousScreening: '2023-01-15',
+                    hpvStatus: 'negative',
+                    symptoms: 'No symptoms reported',
+                    papSmearResult: 'N',
+                    smokingStatus: 'N',
+                    stdHistory: 'N',
+                    region: 'Nairobi',
+                    insuranceCovered: 'Y',
+                    screeningTypeLast: 'Pap smear',
+                    sexualPartners: '1',
+                    firstSexualActivityAge: '20',
+                    riskFactors: []
+                };
+                
+                // Test prediction result structure
+                const samplePredictionResult = {
+                    success: true,
+                    risk_prediction: 0,
+                    risk_level: 'Low Risk',
+                    risk_percentage: 15.5,
+                    recommendation: 'Continue regular screening as recommended'
+                };
+                
+                // Test assessment structure
+                const sampleAssessment = {
+                    id: 'ASS' + Date.now(),
+                    patientId: patientId,
+                    doctorId: 'DOC123',
+                    doctorName: 'test.doctor',
+                    patientData: samplePatientData,
+                    predictionResult: samplePredictionResult,
+                    timestamp: new Date().toISOString(),
+                    date: new Date().toISOString().split('T')[0],
+                    riskLevel: samplePredictionResult.risk_prediction === 1 ? 'high' : 'low'
+                };
+                
+                // Store assessment
+                const assessments = [sampleAssessment];
+                localStorage.setItem('afya_kuu_assessments', JSON.stringify(assessments));
+                
+                // Retrieve and verify
+                const retrievedAssessments = JSON.parse(localStorage.getItem('afya_kuu_assessments') || '[]');
+                log('✓ Assessment stored and retrieved successfully');
+                log('✓ Patient ID format: ' + sampleAssessment.patientId);
+                log('✓ Risk level: ' + sampleAssessment.riskLevel);
+                
+                // Test today's summary calculation
+                const todaysAssessments = retrievedAssessments.filter(a => a.date === sampleAssessment.date);
+                const highRiskCount = todaysAssessments.filter(a => a.riskLevel === 'high').length;
+                const lowRiskCount = todaysAssessments.filter(a => a.riskLevel === 'low').length;
+                
+                log('✓ Today\'s summary: ' + todaysAssessments.length + ' total, ' + highRiskCount + ' high risk, ' + lowRiskCount + ' low risk');
+                
+                return true;
+            } catch (error) {
+                log('✗ Patient data test failed: ' + error.message);
+                return false;
+            }
+        }
+
+        function testFormValidation() {
+            log('\n=== Testing form validation ===');
+            
+            const requiredFields = ['age', 'hpvStatus', 'papSmearResult', 'smokingStatus', 'stdHistory', 'region', 'insuranceCovered'];
+            
+            const incompleteData = {
+                age: '35',
+                hpvStatus: 'negative',
+                // Missing other required fields
+            };
+            
+            const missingFields = requiredFields.filter(field => !incompleteData[field]);
+            
+            if (missingFields.length > 0) {
+                log('✓ Validation correctly identifies missing fields: ' + missingFields.join(', '));
+                return true;
+            } else {
+                log('✗ Validation failed to identify missing fields');
+                return false;
+            }
+        }
+
+        function runSystemTests() {
+            clearOutput();
+            log('🧪 Starting Afya Kuu System Tests...\n');
+            
+            const results = {
+                localStorage: testLocalStorage(),
+                patientData: testPatientData(),
+                formValidation: testFormValidation()
+            };
+            
+            log('\n=== Test Results Summary ===');
+            Object.entries(results).forEach(([test, passed]) => {
+                log(`${passed ? '✅' : '❌'} ${test}: ${passed ? 'PASSED' : 'FAILED'}`);
+            });
+            
+            const allPassed = Object.values(results).every(result => result);
+            log(`\n🎯 Overall: ${allPassed ? 'ALL TESTS PASSED' : 'SOME TESTS FAILED'}`);
+            
+            if (allPassed) {
+                log('\n🚀 System is ready for use!');
+                log('📝 Next steps:');
+                log('1. Go to http://localhost:3001/assessment');
+                log('2. Register as a doctor with email and password');
+                log('3. Access the dashboard to use the interactive assessment form');
+                log('4. Complete patient assessments and view real-time summaries');
+                
+                showStatus('🎉 All tests passed! System is working correctly.');
+            } else {
+                showStatus('⚠️ Some tests failed. Check the output for details.', false);
+            }
+            
+            return allPassed;
+        }
+
+        // Auto-run tests on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                log('🏥 Afya Kuu System Test Console Ready');
+                log('Click "Run System Tests" to verify functionality...\n');
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Authentication Redirect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #ff6b9d;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .button:hover {
+            background: #e55a8a;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authentication Redirect Test</h1>
+        <p>This page tests the authentication protection and redirect functionality.</p>
+        
+        <div>
+            <button class="button" onclick="clearAuth()">🗑️ Clear Authentication</button>
+            <button class="button" onclick="testDashboardAccess()">🏥 Test Dashboard Access</button>
+            <button class="button" onclick="checkAuthStatus()">📊 Check Auth Status</button>
+            <button class="button" onclick="registerTestUser()">👤 Register Test User</button>
+        </div>
+        
+        <div id="status"></div>
+        <div id="output"></div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            document.getElementById('status').innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += `<pre>${new Date().toLocaleTimeString()}: ${message}</pre>`;
+        }
+
+        function clearOutput() {
+            document.getElementById('output').innerHTML = '';
+        }
+
+        function clearAuth() {
+            clearOutput();
+            log('🗑️ Clearing all authentication data...');
+            
+            // Clear localStorage
+            localStorage.removeItem('afya_kuu_user');
+            localStorage.removeItem('afya_kuu_users');
+            localStorage.removeItem('afya_kuu_assessments');
+            
+            // Clear cookies
+            document.cookie = 'afya_kuu_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            log('✅ Authentication data cleared');
+            log('📝 Now try accessing: http://localhost:3001/dashboard/doctor');
+            log('📝 Expected: Should redirect to /assessment with login message');
+            
+            showStatus('🗑️ Authentication cleared! Try accessing dashboard now.', 'warning');
+        }
+
+        function testDashboardAccess() {
+            clearOutput();
+            log('🏥 Testing dashboard access...');
+            
+            const user = JSON.parse(localStorage.getItem('afya_kuu_user') || 'null');
+            
+            if (user) {
+                log(`✅ User authenticated: ${user.email} (${user.userType})`);
+                log('📝 Expected: Should have access to dashboard');
+                showStatus(`✅ Authenticated as ${user.profileName}`, 'success');
+            } else {
+                log('❌ No authenticated user found');
+                log('📝 Expected: Should be redirected to /assessment');
+                showStatus('❌ Not authenticated - should redirect', 'error');
+            }
+            
+            log('\n🔗 Opening dashboard in new tab...');
+            window.open('http://localhost:3001/dashboard/doctor', '_blank');
+        }
+
+        function checkAuthStatus() {
+            clearOutput();
+            log('📊 Checking authentication status...\n');
+            
+            // Check localStorage
+            const user = JSON.parse(localStorage.getItem('afya_kuu_user') || 'null');
+            const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
+            
+            log(`👤 Current User: ${user ? user.email : 'None'}`);
+            log(`👥 Registered Users: ${users.length}`);
+            
+            // Check cookies
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            const authCookie = cookies.find(c => c.startsWith('afya_kuu_user='));
+            
+            log(`🍪 Auth Cookie: ${authCookie ? 'Present' : 'Not found'}`);
+            
+            if (user) {
+                log(`\n✅ Authentication Status: AUTHENTICATED`);
+                log(`   Email: ${user.email}`);
+                log(`   Type: ${user.userType}`);
+                log(`   Profile: ${user.profileName}`);
+                showStatus(`✅ Authenticated as ${user.profileName}`, 'success');
+            } else {
+                log(`\n❌ Authentication Status: NOT AUTHENTICATED`);
+                showStatus('❌ Not authenticated', 'error');
+            }
+        }
+
+        function registerTestUser() {
+            clearOutput();
+            log('👤 Registering test user...');
+            
+            const testUser = {
+                email: 'test.doctor@hospital.com',
+                password: 'testpass123',
+                userType: 'doctor',
+                hospitalName: 'Test General Hospital',
+                licenseNumber: 'MD12345'
+            };
+            
+            try {
+                // Get existing users
+                const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
+                
+                // Remove existing test user if any
+                const filteredUsers = users.filter(u => u.email !== testUser.email);
+                
+                // Create new user
+                const newUser = {
+                    id: Date.now().toString(),
+                    ...testUser,
+                    createdAt: new Date().toISOString()
+                };
+                
+                filteredUsers.push(newUser);
+                localStorage.setItem('afya_kuu_users', JSON.stringify(filteredUsers));
+                
+                // Create user session
+                const userSession = {
+                    id: newUser.id,
+                    email: newUser.email,
+                    profileName: newUser.email.split('@')[0],
+                    userType: newUser.userType,
+                    hospitalName: newUser.hospitalName,
+                    licenseNumber: newUser.licenseNumber
+                };
+                
+                localStorage.setItem('afya_kuu_user', JSON.stringify(userSession));
+                document.cookie = `afya_kuu_user=${JSON.stringify(userSession)}; path=/; max-age=${7 * 24 * 60 * 60}`;
+                
+                log('✅ Test user registered and logged in');
+                log(`   Email: ${userSession.email}`);
+                log(`   Type: ${userSession.userType}`);
+                log('📝 Now try accessing: http://localhost:3001/dashboard/doctor');
+                log('📝 Expected: Should have access to dashboard');
+                
+                showStatus('✅ Test user registered! Try accessing dashboard now.', 'success');
+                
+            } catch (error) {
+                log('❌ Registration failed: ' + error.message);
+                showStatus('❌ Registration failed', 'error');
+            }
+        }
+
+        // Auto-check status on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkAuthStatus, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Afya Kuu Authentication Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #ff6b9d;
+        }
+        .test-section {
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .test-output {
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .button {
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        .button:hover {
+            opacity: 0.9;
+        }
+        .status {
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        .success {
+            background: #2d5a27;
+            color: #4caf50;
+        }
+        .error {
+            background: #5a2727;
+            color: #f44336;
+        }
+        .warning {
+            background: #5a5527;
+            color: #ffeb3b;
+        }
+        .info {
+            background: #27455a;
+            color: #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Afya Kuu Authentication Protection Test</h1>
+            <p>Testing dashboard access control and authentication flow</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Authentication Tests</h2>
+            <div>
+                <button class="button" onclick="testUnauthenticatedAccess()">Test Unauthenticated Access</button>
+                <button class="button" onclick="testRegistration()">Test Registration Flow</button>
+                <button class="button" onclick="testLogin()">Test Login Flow</button>
+                <button class="button" onclick="testLogout()">Test Logout</button>
+                <button class="button" onclick="clearAllData()">Clear All Data</button>
+            </div>
+            <div id="auth-output" class="test-output">
+                Click buttons above to test authentication functionality...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🚪 Route Protection Tests</h2>
+            <div>
+                <button class="button" onclick="testDoctorDashboard()">Test Doctor Dashboard</button>
+                <button class="button" onclick="testAdminDashboard()">Test Admin Dashboard</button>
+                <button class="button" onclick="testPublicRoutes()">Test Public Routes</button>
+                <button class="button" onclick="testUnauthorizedPage()">Test Unauthorized Page</button>
+            </div>
+            <div id="route-output" class="test-output">
+                Click buttons above to test route protection...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Current Authentication Status</h2>
+            <div>
+                <button class="button" onclick="checkAuthStatus()">Check Current Status</button>
+                <button class="button" onclick="viewStoredData()">View Stored Data</button>
+            </div>
+            <div id="status-output" class="test-output">
+                Click "Check Current Status" to see authentication state...
+            </div>
+        </div>
+
+        <div id="global-status"></div>
+    </div>
+
+    <script>
+        function log(output, message) {
+            const element = document.getElementById(output);
+            element.textContent += message + '\n';
+            console.log(message);
+        }
+
+        function clearOutput(output) {
+            document.getElementById(output).textContent = '';
+        }
+
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('global-status');
+            status.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function testUnauthenticatedAccess() {
+            clearOutput('auth-output');
+            log('auth-output', '🔒 Testing unauthenticated access to protected routes...\n');
+            
+            // Clear any existing authentication
+            localStorage.removeItem('afya_kuu_user');
+            document.cookie = 'afya_kuu_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            
+            log('auth-output', '✓ Cleared all authentication data');
+            log('auth-output', '✓ User should be redirected to assessment page or see 404');
+            log('auth-output', '\n📝 Manual Test: Try accessing http://localhost:3001/dashboard/doctor');
+            log('auth-output', '   Expected: Should show unauthorized page or redirect to /assessment');
+            
+            showStatus('🔒 Authentication cleared. Try accessing dashboard manually.', 'warning');
+        }
+
+        function testRegistration() {
+            clearOutput('auth-output');
+            log('auth-output', '📝 Testing registration flow...\n');
+            
+            const testUser = {
+                email: 'test.doctor@hospital.com',
+                password: 'testpass123',
+                userType: 'doctor',
+                hospitalName: 'Test General Hospital',
+                licenseNumber: 'MD12345'
+            };
+            
+            try {
+                // Simulate registration
+                const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
+                
+                // Check if user already exists
+                const existingUser = users.find(u => u.email === testUser.email);
+                if (existingUser) {
+                    log('auth-output', '⚠️ Test user already exists, removing...');
+                    const filteredUsers = users.filter(u => u.email !== testUser.email);
+                    localStorage.setItem('afya_kuu_users', JSON.stringify(filteredUsers));
+                }
+                
+                // Create new user
+                const newUser = {
+                    id: Date.now().toString(),
+                    ...testUser,
+                    createdAt: new Date().toISOString()
+                };
+                
+                users.push(newUser);
+                localStorage.setItem('afya_kuu_users', JSON.stringify(users));
+                
+                // Create user session
+                const userSession = {
+                    id: newUser.id,
+                    email: newUser.email,
+                    profileName: newUser.email.split('@')[0],
+                    userType: newUser.userType,
+                    hospitalName: newUser.hospitalName,
+                    licenseNumber: newUser.licenseNumber
+                };
+                
+                localStorage.setItem('afya_kuu_user', JSON.stringify(userSession));
+                document.cookie = `afya_kuu_user=${JSON.stringify(userSession)}; path=/; max-age=${7 * 24 * 60 * 60}`;
+                
+                log('auth-output', '✅ Registration successful!');
+                log('auth-output', `✓ User: ${userSession.email}`);
+                log('auth-output', `✓ Type: ${userSession.userType}`);
+                log('auth-output', `✓ Profile: ${userSession.profileName}`);
+                log('auth-output', '\n📝 Manual Test: Try accessing http://localhost:3001/dashboard/doctor');
+                log('auth-output', '   Expected: Should now have access to doctor dashboard');
+                
+                showStatus('✅ Registration successful! User is now authenticated.', 'success');
+                
+            } catch (error) {
+                log('auth-output', '❌ Registration failed: ' + error.message);
+                showStatus('❌ Registration failed', 'error');
+            }
+        }
+
+        function testLogin() {
+            clearOutput('auth-output');
+            log('auth-output', '🔑 Testing login flow...\n');
+            
+            try {
+                const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
+                const testEmail = 'test.doctor@hospital.com';
+                const testPassword = 'testpass123';
+                
+                const user = users.find(u => u.email === testEmail && u.password === testPassword);
+                
+                if (!user) {
+                    log('auth-output', '❌ Test user not found. Run registration test first.');
+                    showStatus('❌ Login failed - user not found', 'error');
+                    return;
+                }
+                
+                // Create user session
+                const userSession = {
+                    id: user.id,
+                    email: user.email,
+                    profileName: user.email.split('@')[0],
+                    userType: user.userType,
+                    hospitalName: user.hospitalName,
+                    licenseNumber: user.licenseNumber
+                };
+                
+                localStorage.setItem('afya_kuu_user', JSON.stringify(userSession));
+                document.cookie = `afya_kuu_user=${JSON.stringify(userSession)}; path=/; max-age=${7 * 24 * 60 * 60}`;
+                
+                log('auth-output', '✅ Login successful!');
+                log('auth-output', `✓ Welcome back: ${userSession.profileName}`);
+                log('auth-output', `✓ User type: ${userSession.userType}`);
+                log('auth-output', '\n📝 Manual Test: Try accessing http://localhost:3001/dashboard/doctor');
+                log('auth-output', '   Expected: Should have access to dashboard');
+                
+                showStatus('✅ Login successful!', 'success');
+                
+            } catch (error) {
+                log('auth-output', '❌ Login failed: ' + error.message);
+                showStatus('❌ Login failed', 'error');
+            }
+        }
+
+        function testLogout() {
+            clearOutput('auth-output');
+            log('auth-output', '🚪 Testing logout flow...\n');
+            
+            try {
+                // Clear authentication
+                localStorage.removeItem('afya_kuu_user');
+                document.cookie = 'afya_kuu_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                
+                log('auth-output', '✅ Logout successful!');
+                log('auth-output', '✓ User session cleared');
+                log('auth-output', '✓ Authentication cookie removed');
+                log('auth-output', '\n📝 Manual Test: Try accessing http://localhost:3001/dashboard/doctor');
+                log('auth-output', '   Expected: Should be redirected or show unauthorized page');
+                
+                showStatus('✅ Logout successful! User is now unauthenticated.', 'success');
+                
+            } catch (error) {
+                log('auth-output', '❌ Logout failed: ' + error.message);
+                showStatus('❌ Logout failed', 'error');
+            }
+        }
+
+        function testDoctorDashboard() {
+            clearOutput('route-output');
+            log('route-output', '🏥 Testing doctor dashboard access...\n');
+            
+            const user = JSON.parse(localStorage.getItem('afya_kuu_user') || 'null');
+            
+            if (!user) {
+                log('route-output', '❌ No authenticated user found');
+                log('route-output', '📝 Expected: Should be redirected to /assessment or show 404');
+            } else if (user.userType === 'doctor') {
+                log('route-output', '✅ Doctor user authenticated');
+                log('route-output', '📝 Expected: Should have access to doctor dashboard');
+            } else {
+                log('route-output', '⚠️ User is not a doctor (type: ' + user.userType + ')');
+                log('route-output', '📝 Expected: Should be redirected or show unauthorized');
+            }
+            
+            log('route-output', '\n🔗 Test URL: http://localhost:3001/dashboard/doctor');
+            window.open('http://localhost:3001/dashboard/doctor', '_blank');
+        }
+
+        function testAdminDashboard() {
+            clearOutput('route-output');
+            log('route-output', '👨‍💼 Testing admin dashboard access...\n');
+            
+            const user = JSON.parse(localStorage.getItem('afya_kuu_user') || 'null');
+            
+            if (!user) {
+                log('route-output', '❌ No authenticated user found');
+                log('route-output', '📝 Expected: Should be redirected to /assessment or show 404');
+            } else if (user.userType === 'admin') {
+                log('route-output', '✅ Admin user authenticated');
+                log('route-output', '📝 Expected: Should have access to admin dashboard');
+            } else {
+                log('route-output', '⚠️ User is not an admin (type: ' + user.userType + ')');
+                log('route-output', '📝 Expected: Should be redirected or show unauthorized');
+            }
+            
+            log('route-output', '\n🔗 Test URL: http://localhost:3001/dashboard/admin');
+            window.open('http://localhost:3001/dashboard/admin', '_blank');
+        }
+
+        function testPublicRoutes() {
+            clearOutput('route-output');
+            log('route-output', '🌐 Testing public routes access...\n');
+            
+            const publicRoutes = [
+                { name: 'Home', url: 'http://localhost:3001/' },
+                { name: 'How It Works', url: 'http://localhost:3001/how-it-works' },
+                { name: 'Assessment', url: 'http://localhost:3001/assessment' }
+            ];
+            
+            log('route-output', '📝 Public routes should be accessible without authentication:');
+            publicRoutes.forEach(route => {
+                log('route-output', `✓ ${route.name}: ${route.url}`);
+            });
+            
+            log('route-output', '\n🔗 Opening all public routes...');
+            publicRoutes.forEach(route => {
+                setTimeout(() => window.open(route.url, '_blank'), 500);
+            });
+        }
+
+        function testUnauthorizedPage() {
+            clearOutput('route-output');
+            log('route-output', '🚫 Testing unauthorized page...\n');
+            
+            log('route-output', '📝 Testing custom unauthorized page');
+            log('route-output', '🔗 Opening: http://localhost:3001/unauthorized');
+            
+            window.open('http://localhost:3001/unauthorized', '_blank');
+        }
+
+        function checkAuthStatus() {
+            clearOutput('status-output');
+            log('status-output', '📊 Current Authentication Status\n');
+            
+            const user = JSON.parse(localStorage.getItem('afya_kuu_user') || 'null');
+            const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
+            
+            if (user) {
+                log('status-output', '✅ User is authenticated:');
+                log('status-output', `   Email: ${user.email}`);
+                log('status-output', `   Profile: ${user.profileName}`);
+                log('status-output', `   Type: ${user.userType}`);
+                log('status-output', `   Hospital: ${user.hospitalName || 'N/A'}`);
+                log('status-output', `   License: ${user.licenseNumber || 'N/A'}`);
+                
+                showStatus(`✅ Authenticated as ${user.profileName} (${user.userType})`, 'success');
+            } else {
+                log('status-output', '❌ No user is currently authenticated');
+                showStatus('❌ Not authenticated', 'error');
+            }
+            
+            log('status-output', `\n📊 Total registered users: ${users.length}`);
+            
+            // Check cookies
+            const cookies = document.cookie.split(';').map(c => c.trim());
+            const authCookie = cookies.find(c => c.startsWith('afya_kuu_user='));
+            
+            if (authCookie) {
+                log('status-output', '✅ Authentication cookie is set');
+            } else {
+                log('status-output', '❌ No authentication cookie found');
+            }
+        }
+
+        function viewStoredData() {
+            clearOutput('status-output');
+            log('status-output', '💾 Stored Data Overview\n');
+            
+            const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
+            const currentUser = JSON.parse(localStorage.getItem('afya_kuu_user') || 'null');
+            const assessments = JSON.parse(localStorage.getItem('afya_kuu_assessments') || '[]');
+            
+            log('status-output', `👥 Registered Users (${users.length}):`);
+            users.forEach((user, index) => {
+                log('status-output', `   ${index + 1}. ${user.email} (${user.userType})`);
+            });
+            
+            log('status-output', `\n👤 Current User: ${currentUser ? currentUser.email : 'None'}`);
+            
+            log('status-output', `\n📋 Patient Assessments: ${assessments.length}`);
+            
+            // Check localStorage size
+            let totalSize = 0;
+            for (let key in localStorage) {
+                if (localStorage.hasOwnProperty(key)) {
+                    totalSize += localStorage[key].length;
+                }
+            }
+            log('status-output', `\n💾 Total localStorage size: ~${Math.round(totalSize / 1024)} KB`);
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all stored data? This will log out all users and remove all assessments.')) {
+                localStorage.clear();
+                document.cookie = 'afya_kuu_user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+                
+                clearOutput('auth-output');
+                clearOutput('route-output');
+                clearOutput('status-output');
+                
+                log('status-output', '🗑️ All data cleared successfully!');
+                showStatus('🗑️ All data cleared', 'warning');
+            }
+        }
+
+        // Auto-run status check on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkAuthStatus, 1000);
+        });
+    </script>
+</body>
+</html>
