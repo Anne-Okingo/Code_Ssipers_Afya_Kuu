@@ -213,10 +213,10 @@ def predict():
 @app.route('/health', methods=['GET'])
 def health_check():
     """Health check endpoint"""
-    models_loaded = (random_forest_model is not None and 
-                    label_encoder is not None and 
+    models_loaded = (random_forest_model is not None and
+                    label_encoder is not None and
                     feature_selector is not None)
-    
+
     return jsonify({
         'status': 'healthy' if models_loaded else 'unhealthy',
         'models_loaded': models_loaded,
@@ -227,6 +227,11 @@ def health_check():
             'feature_selector': feature_selector is not None
         }
     })
+
+@app.route('/healthz', methods=['GET'])
+def health_check_render():
+    """Health check endpoint for Render (uses /healthz)"""
+    return health_check()
 
 @app.route('/', methods=['GET'])
 def home():
@@ -242,12 +247,19 @@ def home():
 
 # Load models on startup
 if __name__ == '__main__':
-    logger.info("Starting Random Forest API server...")
-    
+    import os
+
+    logger.info("Starting Afya Kuu API server...")
+
     # Try to load models
     if load_models():
         logger.info("All models loaded successfully!")
     else:
         logger.warning("Some models failed to load. Please train the model first using train_random_forest_model.py")
-    
-    app.run(debug=True, host='0.0.0.0', port=5001)
+
+    # Get port from environment variable (for Render deployment)
+    port = int(os.environ.get('PORT', 5001))
+    debug_mode = os.environ.get('FLASK_ENV', 'development') != 'production'
+
+    logger.info(f"Starting server on port {port}")
+    app.run(debug=debug_mode, host='0.0.0.0', port=port)
