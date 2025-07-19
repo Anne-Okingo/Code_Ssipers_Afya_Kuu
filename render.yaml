@@ -1,0 +1,33 @@
+services:
+  # Backend API Service
+  - type: web
+    name: afya-kuu-api
+    env: python
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+    startCommand: python flask_rf_api.py
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: PORT
+        value: 5001
+    healthCheckPath: /health
+    
+  # Frontend Service  
+  - type: web
+    name: afya-kuu-frontend
+    env: node
+    buildCommand: |
+      cd Frontend/Code-Her-Care/afya-kuu
+      npm ci
+      npm run build
+    startCommand: |
+      cd Frontend/Code-Her-Care/afya-kuu
+      npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_API_URL
+        value: https://afya-kuu-api.onrender.com
+    healthCheckPath: /
