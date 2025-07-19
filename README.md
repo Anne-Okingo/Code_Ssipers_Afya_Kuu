@@ -8,7 +8,15 @@ A comprehensive AI-powered web application for cervical cancer risk assessment u
 
 **Terminal 1 - Backend (Random Forest API):**
 ```bash
+# Basic start
 source venv/bin/activate && python flask_rf_api.py
+
+# With dependency check (recommended)
+source venv/bin/activate && pip install -r requirements.txt && python flask_rf_api.py
+
+# Production mode
+source venv/bin/activate && export FLASK_ENV=production && python flask_rf_api.py
+
 # API runs on http://localhost:5001
 ```
 
@@ -152,10 +160,51 @@ python train_random_forest_model.py
 
 #### 1. Start the Backend API (Random Forest Model)
 ```bash
-# From project root
+# From project root - Basic start
 source venv/bin/activate && python flask_rf_api.py
+
+# Recommended: With dependency check
+source venv/bin/activate && pip install -r requirements.txt && python flask_rf_api.py
+
+# Production mode
+source venv/bin/activate && export FLASK_ENV=production && python flask_rf_api.py
+
+# Background process
+source venv/bin/activate && nohup python flask_rf_api.py > flask.log 2>&1 &
 ```
 The API will be available at `http://localhost:5001`
+
+**Troubleshooting Backend:**
+```bash
+# Check if virtual environment exists
+ls -la venv/bin/activate
+
+# Check Python path
+source venv/bin/activate && which python
+
+# Check installed packages
+source venv/bin/activate && pip list
+
+# Check port availability
+netstat -tulpn | grep :5001
+
+# Kill existing Flask processes
+pkill -f flask_rf_api
+
+# Test API health
+curl http://localhost:5001/health
+```
+
+## 🌐 Live Deployment
+
+### Production URLs:
+- **Backend API:** https://code-ssipers-afya-kuu.onrender.com
+- **Frontend App:** https://afya-kuu-frontend.onrender.com
+
+### API Endpoints:
+- **Health Check:** https://code-ssipers-afya-kuu.onrender.com/health
+- **Predictions:** https://code-ssipers-afya-kuu.onrender.com/predict
+- **Home:** https://code-ssipers-afya-kuu.onrender.com/
 
 **Backend Features:**
 - Random Forest model with 50% accuracy on small dataset
