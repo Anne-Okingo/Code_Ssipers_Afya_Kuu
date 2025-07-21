@@ -95,7 +95,7 @@ export default function VoiceInput({
           </div>
           {transcript && (
             <div className="mt-1 text-gray-600 dark:text-gray-300 italic">
-              "{transcript}"
+              &ldquo;{transcript}&rdquo;
             </div>
           )}
         </div>
