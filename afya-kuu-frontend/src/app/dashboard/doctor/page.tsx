@@ -9,6 +9,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import ThemeToggle from '../../components/ThemeToggle';
 import VoiceInput from '../../components/VoiceInput';
+import InventoryManagement from '../../components/InventoryManagement';
+import PatientRecords from '../../components/PatientRecords';
+import FeedbackSystem from '../../components/FeedbackSystem';
 
 type AssessmentStep = 'patient-info' | 'results' | 'recommendations';
 
@@ -16,6 +19,7 @@ export default function DoctorDashboard() {
   const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
   const [language, setLanguage] = useState<'en' | 'sw'>('en');
+  const [activeTab, setActiveTab] = useState<'assessment' | 'inventory' | 'patients' | 'resources' | 'feedback'>('assessment');
   const [currentStep, setCurrentStep] = useState<AssessmentStep>('patient-info');
   const [isLoading, setIsLoading] = useState(false);
   const [predictionResult, setPredictionResult] = useState<PredictionResponse | null>(null);
@@ -339,27 +343,62 @@ export default function DoctorDashboard() {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.title}</h2>
                 <ul className="space-y-2">
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-pink-600 bg-pink-50 rounded-md font-medium">
+                    <button
+                      onClick={() => setActiveTab('assessment')}
+                      className={`w-full text-left px-3 py-2 rounded-md font-medium ${
+                        activeTab === 'assessment'
+                          ? 'text-pink-600 bg-pink-50'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.assessment}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('inventory')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'inventory'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.inventory}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('patients')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'patients'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.patients}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('resources')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'resources'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.resources}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('feedback')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'feedback'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.feedback}
                     </button>
                   </li>
@@ -396,8 +435,8 @@ export default function DoctorDashboard() {
 
             {/* Main Content */}
             <div className="lg:col-span-3">
-              {/* Patient Assessment Form */}
-              {currentStep === 'patient-info' && (
+              {/* Assessment Tab */}
+              {activeTab === 'assessment' && currentStep === 'patient-info' && (
                 <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
                   isDarkMode ? 'bg-gray-800' : 'bg-white'
                 }`}>
@@ -1094,6 +1133,67 @@ export default function DoctorDashboard() {
                     </div>
                   </div>
                 )}
+
+              {/* Inventory Tab */}
+              {activeTab === 'inventory' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <InventoryManagement
+                    language={language}
+                    userRole="doctor"
+                  />
+                </div>
+              )}
+
+              {/* Patient Records Tab */}
+              {activeTab === 'patients' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <PatientRecords
+                    language={language}
+                    doctorId={user?.id || 'doctor_001'}
+                  />
+                </div>
+              )}
+
+              {/* Resources Tab */}
+              {activeTab === 'resources' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <InventoryManagement
+                    language={language}
+                    userRole="doctor"
+                  />
+                  <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                    <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                      {language === 'en' ? 'Resources & Inventory' : 'Rasilimali na Hifadhi'}
+                    </h3>
+                    <p className="text-blue-700 dark:text-blue-300">
+                      {language === 'en'
+                        ? 'View and manage medical supplies, equipment, and resources available in your facility. Both doctors and admins can add resources to the inventory.'
+                        : 'Ona na simamia vifaa vya matibabu, vifaa, na rasilimali zinazopatikana katika kituo chako. Madaktari na wasimamizi wanaweza kuongeza rasilimali kwenye hifadhi.'
+                      }
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Feedback Tab */}
+              {activeTab === 'feedback' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <FeedbackSystem
+                    language={language}
+                    userId={user?.id || 'doctor_001'}
+                    userRole="doctor"
+                    userName={user?.email || 'Doctor'}
+                  />
+                </div>
+              )}
               </div>
             </div>
           </div>
