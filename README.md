@@ -22,7 +22,7 @@ source venv/bin/activate && export FLASK_ENV=production && python flask_rf_api.p
 
 **Terminal 2 - Frontend (Afya Kuu Platform):**
 ```bash
-cd Frontend/Code-Her-Care/afya-kuu && npm run dev
+cd afya-kuu-frontend && npm run dev
 # Web app runs on http://localhost:3000
 ```
 
@@ -139,7 +139,7 @@ ls -la *.pkl
 3. **Frontend Setup**
 ```bash
 # Navigate to frontend directory
-cd Frontend/Code-Her-Care/afya-kuu
+cd afya-kuu-frontend
 
 # Install dependencies
 npm install
@@ -198,13 +198,20 @@ curl http://localhost:5001/health
 ## 🌐 Live Deployment
 
 ### Production URLs:
-- **Backend API:** https://code-ssipers-afya-kuu.onrender.com
-- **Frontend App:** https://afya-kuu-frontend.onrender.com
+- **Backend API:** https://code-ssipers-afya-kuu.onrender.com ✅
+- **Frontend App:** https://afya-kuu-frontend.onrender.com ⏳
 
 ### API Endpoints:
 - **Health Check:** https://code-ssipers-afya-kuu.onrender.com/health
+- **Health Check (Render):** https://code-ssipers-afya-kuu.onrender.com/healthz
 - **Predictions:** https://code-ssipers-afya-kuu.onrender.com/predict
 - **Home:** https://code-ssipers-afya-kuu.onrender.com/
+
+### Deployment Configuration:
+- **Platform:** Render.com
+- **Backend:** Python Flask (Auto-deploy from main branch)
+- **Frontend:** Next.js (Standalone build)
+- **Environment:** Production-ready with CORS enabled
 
 **Backend Features:**
 - Random Forest model with 50% accuracy on small dataset
@@ -214,8 +221,8 @@ curl http://localhost:5001/health
 
 #### 2. Start the Frontend (Afya Kuu Platform)
 ```bash
-# From Frontend/Code-Her-Care/afya-kuu
-cd Frontend/Code-Her-Care/afya-kuu
+# From afya-kuu-frontend directory
+cd afya-kuu-frontend
 npm run dev
 ```
 The web application will be available at `http://localhost:3000`
@@ -289,32 +296,64 @@ python test_without_firebase.py
 
 ```
 Decision-Tree-Algorithm/
-├── app.py                          # Flask backend API
+├── flask_rf_api.py                 # Main Flask backend API
 ├── requirements.txt                # Python dependencies
-├── *.pkl                          # Trained ML models
+├── *.pkl                          # Trained ML models (Random Forest)
 ├── *.csv                          # Training datasets
 ├── *.ipynb                        # Jupyter notebooks
-├── Frontend/
-│   └── Code-Her-Care/
-│       └── my-frontend/
-│           ├── src/
-│           │   ├── app/
-│           │   │   ├── components/     # React components
-│           │   │   ├── services/       # API integration
-│           │   │   └── risk-assessment/ # Main pages
-│           │   └── ...
-│           ├── package.json
-│           └── .env.local
-├── test_integration.py            # Integration tests
+├── afya-kuu-frontend/             # Next.js Frontend Application
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── components/         # React components
+│   │   │   ├── contexts/           # React contexts (Auth, Theme)
+│   │   │   ├── services/           # API integration
+│   │   │   ├── dashboard/          # Doctor & Admin dashboards
+│   │   │   └── assessment/         # Risk assessment pages
+│   │   └── middleware.ts           # Next.js middleware
+│   ├── package.json
+│   ├── next.config.ts              # Next.js configuration
+│   └── tailwind.config.js          # Tailwind CSS config
+├── train_random_forest_model.py    # ML model training
+├── venv/                          # Python virtual environment
 └── README.md                      # This file
 ```
+
+## 🛠️ Technology Stack
+
+### Frontend
+- **Next.js 15.4.1** - React-based full-stack framework
+- **React 19.1.0** - UI component library
+- **TypeScript** - Type-safe development
+- **Tailwind CSS 4.0** - Utility-first styling
+- **Web Speech API** - Voice input functionality
+
+### Backend
+- **Python Flask 3.1.1** - Lightweight web framework
+- **scikit-learn 1.7.0** - Machine learning library
+- **Random Forest** - Primary ML algorithm
+- **pandas 2.3.0** - Data manipulation
+- **Flask-CORS 5.0.0** - Cross-origin support
+
+### Deployment
+- **Render.com** - Cloud hosting platform
+- **GitHub** - Version control and CI/CD
+- **Environment Variables** - Configuration management
+
+### Special Features
+- **🎤 Voice Input** - All form fields voice-enabled
+- **🌍 Bilingual** - English and Swahili support
+- **🌙 Dark Mode** - Adaptive UI themes
+- **📱 Responsive** - Mobile-first design
 
 ## 🧪 Testing
 
 ### Backend Testing
 ```bash
-# Test API health
+# Test API health (local)
 curl http://localhost:5001/health
+
+# Test API health (production)
+curl https://code-ssipers-afya-kuu.onrender.com/health
 
 # Test prediction endpoint
 curl -X POST http://localhost:5001/predict \
@@ -322,8 +361,24 @@ curl -X POST http://localhost:5001/predict \
   -d '{"age": "25", "ageFirstSex": "18", "sexualPartners": "2", "smoking": "N", "stdsHistory": "N", "region": "Nairobi", "insurance": "Y", "hpvTest": "NEGATIVE", "papSmear": "N", "lastScreeningType": "PAP SMEAR"}'
 ```
 
+### Frontend Testing
+```bash
+# Navigate to frontend directory
+cd afya-kuu-frontend
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Test production build
+npm start
+```
+
 ### Integration Testing
 ```bash
+# Run integration tests (if available)
 python test_integration.py
 ```
 
@@ -334,6 +389,8 @@ python test_integration.py
 - Verify real-time API integration with the Random Forest model
 - Check error handling and loading states
 - Test bilingual functionality (English/Swahili)
+- Test voice input functionality on form fields
+- Verify dark/light mode toggle
 
 ## 🔧 Configuration
 
@@ -343,6 +400,45 @@ python test_integration.py
 ### Model Configuration
 - Models are loaded automatically on backend startup
 - Model files must be present in the project root
+
+## 🚀 Deployment Guide
+
+### Render.com Deployment
+
+#### Backend Service Configuration:
+```
+Service Type: Web Service
+Name: afya-kuu-backend
+Language: Python 3
+Build Command: pip install -r requirements.txt
+Start Command: python flask_rf_api.py
+Environment Variables:
+  - FLASK_ENV=production
+Health Check Path: /healthz
+```
+
+#### Frontend Service Configuration:
+```
+Service Type: Web Service
+Name: afya-kuu-frontend
+Language: Node
+Root Directory: afya-kuu-frontend
+Build Command: npm ci && npm run build
+Start Command: npm start
+Environment Variables:
+  - NODE_ENV=production
+  - NEXT_PUBLIC_API_URL=https://code-ssipers-afya-kuu.onrender.com
+Health Check Path: /healthz
+```
+
+### Local Development Deployment
+```bash
+# Terminal 1 - Backend
+source venv/bin/activate && python flask_rf_api.py
+
+# Terminal 2 - Frontend
+cd afya-kuu-frontend && npm run dev
+```
 - Feature names are validated against training data
 
 ### Regional Settings
