@@ -198,8 +198,8 @@ curl http://localhost:5001/health
 ## 🌐 Live Deployment
 
 ### Production URLs:
-- **Backend API:** https://code-ssipers-afya-kuu.onrender.com ✅
-- **Frontend App:** https://code-ssipers-afya-kuu.onrender.com⏳
+- **Backend API:** https://code-ssipers-afya-kuu.onrender.com 
+- **Frontend App:** https://code-ssipers-afya-kuu-frontend.onrender.com/ 
 
 ### API Endpoints:
 - **Health Check:** https://code-ssipers-afya-kuu.onrender.com/health
