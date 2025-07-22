@@ -12,6 +12,7 @@ import VoiceInput from '../../components/VoiceInput';
 import InventoryManagement from '../../components/InventoryManagement';
 import PatientRecords from '../../components/PatientRecords';
 import FeedbackSystem from '../../components/FeedbackSystem';
+import CervicalCancerResults from '../../components/CervicalCancerResults';
 
 type AssessmentStep = 'patient-info' | 'results' | 'recommendations';
 
@@ -19,7 +20,7 @@ export default function DoctorDashboard() {
   const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
   const [language, setLanguage] = useState<'en' | 'sw'>('en');
-  const [activeTab, setActiveTab] = useState<'assessment' | 'inventory' | 'patients' | 'resources' | 'feedback'>('assessment');
+  const [activeTab, setActiveTab] = useState<'assessment' | 'inventory' | 'patients' | 'resources' | 'feedback' | 'results'>('assessment');
   const [currentStep, setCurrentStep] = useState<AssessmentStep>('patient-info');
   const [isLoading, setIsLoading] = useState(false);
   const [predictionResult, setPredictionResult] = useState<PredictionResponse | null>(null);
@@ -53,6 +54,7 @@ export default function DoctorDashboard() {
         patients: "Patient Records",
         resources: "Resources",
         feedback: "Feedback",
+        results: "Cancer Results",
         logout: "Logout"
       },
       assessment: {
@@ -93,6 +95,7 @@ export default function DoctorDashboard() {
         patients: "Rekodi za Wagonjwa",
         resources: "Rasilimali",
         feedback: "Maoni",
+        results: "Matokeo ya Saratani",
         logout: "Toka"
       },
       assessment: {
@@ -400,6 +403,18 @@ export default function DoctorDashboard() {
                       }`}
                     >
                       {t.nav.feedback}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => setActiveTab('results')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'results'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {t.nav.results}
                     </button>
                   </li>
                 </ul>
@@ -1191,6 +1206,18 @@ export default function DoctorDashboard() {
                     userId={user?.id || 'doctor_001'}
                     userRole="doctor"
                     userName={user?.email || 'Doctor'}
+                  />
+                </div>
+              )}
+
+              {/* Cancer Results Tab */}
+              {activeTab === 'results' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <CervicalCancerResults
+                    language={language}
+                    doctorId={user?.id || 'doctor_001'}
                   />
                 </div>
               )}
