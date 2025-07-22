@@ -200,12 +200,12 @@ export function initializeSampleInventory() {
   if (items.length === 0) {
     const sampleItems: Omit<InventoryItem, 'id' | 'lastUpdated' | 'totalCost' | 'status'>[] = [
       {
-        name: 'HPV Test Kits',
+        name: 'HPV Test Kits (careHPV)',
         category: 'test_kits',
-        description: 'High-risk HPV DNA test kits for cervical cancer screening',
+        description: 'High-risk HPV DNA test kits for cervical cancer screening - Kenyan standard',
         quantity: 50,
-        unitCost: 25.00,
-        supplier: 'MedSupply Kenya',
+        unitCost: 3500.00, // KES 3,500 per test (realistic Kenyan pricing)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         expiryDate: '2025-12-31',
         addedBy: 'admin_001',
         minimumThreshold: 10
@@ -213,66 +213,97 @@ export function initializeSampleInventory() {
       {
         name: 'Pap Smear Collection Kits',
         category: 'test_kits',
-        description: 'Complete Pap smear collection and transport kits',
+        description: 'Complete Pap smear collection and transport kits with cytology processing',
         quantity: 30,
-        unitCost: 15.00,
-        supplier: 'HealthTech Solutions',
+        unitCost: 2800.00, // KES 2,800 per test (including lab processing)
+        supplier: 'Lancet Kenya',
         expiryDate: '2025-06-30',
         addedBy: 'admin_001',
         minimumThreshold: 5
       },
       {
-        name: 'Colposcope',
+        name: 'Digital Colposcope',
         category: 'medical_equipment',
-        description: 'Digital colposcope for cervical examination',
+        description: 'Digital colposcope with camera for cervical examination and documentation',
         quantity: 2,
-        unitCost: 5000.00,
-        supplier: 'Medical Instruments Ltd',
+        unitCost: 850000.00, // KES 850,000 (realistic price for digital colposcope in Kenya)
+        supplier: 'Philips Healthcare Kenya',
         addedBy: 'admin_001',
         minimumThreshold: 1
       },
       {
+        name: 'VIA Test Kit (Acetic Acid)',
+        category: 'test_kits',
+        description: 'Visual Inspection with Acetic Acid - complete screening kit',
+        quantity: 100,
+        unitCost: 150.00, // KES 150 per VIA test (very affordable screening)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
+        expiryDate: '2025-08-15',
+        addedBy: 'admin_001',
+        minimumThreshold: 20
+      },
+      {
+        name: 'VILI Test Kit (Lugols Iodine)',
+        category: 'test_kits',
+        description: 'Visual Inspection with Lugols Iodine for enhanced cervical screening',
+        quantity: 80,
+        unitCost: 200.00, // KES 200 per VILI test
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
+        expiryDate: '2025-09-30',
+        addedBy: 'admin_001',
+        minimumThreshold: 15
+      },
+      {
+        name: 'Cervical Biopsy Kit',
+        category: 'test_kits',
+        description: 'Complete cervical biopsy kit with forceps and specimen containers',
+        quantity: 25,
+        unitCost: 4500.00, // KES 4,500 per biopsy (including histopathology)
+        supplier: 'Pathologists Lancet Kenya',
+        addedBy: 'admin_001',
+        minimumThreshold: 5
+      },
+      {
         name: 'Disposable Speculums',
         category: 'consumables',
-        description: 'Single-use plastic speculums for gynecological exams',
+        description: 'Single-use plastic speculums for gynecological exams (pack of 50)',
         quantity: 100,
-        unitCost: 2.50,
-        supplier: 'MedSupply Kenya',
+        unitCost: 45.00, // KES 45 per speculum
+        supplier: 'Surgipharm Kenya',
         expiryDate: '2026-01-31',
         addedBy: 'admin_001',
         minimumThreshold: 20
       },
       {
-        name: 'Acetic Acid Solution',
-        category: 'medications',
-        description: '3-5% acetic acid for VIA screening',
-        quantity: 8,
-        unitCost: 12.00,
-        supplier: 'Pharma Distributors',
-        expiryDate: '2025-08-15',
-        addedBy: 'admin_001',
-        minimumThreshold: 3
-      },
-      {
-        name: 'Biopsy Forceps',
-        category: 'medical_equipment',
-        description: 'Sterile biopsy forceps for tissue sampling',
-        quantity: 5,
-        unitCost: 150.00,
-        supplier: 'Surgical Supplies Ltd',
-        addedBy: 'admin_001',
-        minimumThreshold: 2
-      },
-      {
-        name: 'Examination Gloves',
+        name: 'Examination Gloves (Nitrile)',
         category: 'consumables',
-        description: 'Latex-free examination gloves (box of 100)',
-        quantity: 25,
-        unitCost: 8.00,
-        supplier: 'MedSupply Kenya',
+        description: 'Latex-free nitrile examination gloves (box of 100 pairs)',
+        quantity: 50,
+        unitCost: 1200.00, // KES 1,200 per box (100 pairs)
+        supplier: 'Surgipharm Kenya',
         expiryDate: '2026-03-31',
         addedBy: 'admin_001',
-        minimumThreshold: 5
+        minimumThreshold: 10
+      },
+      {
+        name: 'Cryotherapy Equipment',
+        category: 'medical_equipment',
+        description: 'Cryotherapy unit for treating precancerous cervical lesions',
+        quantity: 1,
+        unitCost: 450000.00, // KES 450,000 (realistic price for cryotherapy unit)
+        supplier: 'Wallach Surgical Devices',
+        addedBy: 'admin_001',
+        minimumThreshold: 1
+      },
+      {
+        name: 'LEEP Equipment Set',
+        category: 'medical_equipment',
+        description: 'Loop Electrosurgical Excision Procedure equipment for cervical treatment',
+        quantity: 1,
+        unitCost: 750000.00, // KES 750,000 (LEEP equipment cost)
+        supplier: 'CooperSurgical Kenya',
+        addedBy: 'admin_001',
+        minimumThreshold: 1
       }
     ];
 

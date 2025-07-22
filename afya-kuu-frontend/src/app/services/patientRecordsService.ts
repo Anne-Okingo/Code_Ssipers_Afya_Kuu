@@ -4,12 +4,9 @@ export interface PatientRecord {
   id: string;
   patientId: string;
   personalInfo: {
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-    age: number;
     phoneNumber: string;
-    email?: string;
+    age: number;
+    dateOfBirth: string;
     address: string;
     emergencyContact: string;
     emergencyPhone: string;
@@ -39,6 +36,8 @@ export interface PatientRecord {
   followUp: {
     nextAppointment?: string;
     followUpInstructions?: string;
+    recommendedTests?: string[];
+    testCosts?: number;
     status: 'pending' | 'scheduled' | 'completed' | 'overdue';
   };
   createdAt: string;
@@ -49,12 +48,15 @@ export interface PatientRecord {
 export interface PatientSummary {
   id: string;
   patientId: string;
-  fullName: string;
+  phoneNumber: string;
   age: number;
   lastAssessment: string;
   riskLevel: string;
   status: string;
-  phoneNumber: string;
+  followUp: {
+    nextAppointment?: string;
+    status: string;
+  };
 }
 
 // Local storage keys
@@ -139,12 +141,15 @@ export function getPatientSummaries(doctorId: string): PatientSummary[] {
   return records.map(record => ({
     id: record.id,
     patientId: record.patientId,
-    fullName: `${record.personalInfo.firstName} ${record.personalInfo.lastName}`,
+    phoneNumber: record.personalInfo.phoneNumber,
     age: record.personalInfo.age,
     lastAssessment: record.assessmentResults.assessmentDate,
     riskLevel: record.assessmentResults.riskLevel,
     status: record.followUp.status,
-    phoneNumber: record.personalInfo.phoneNumber
+    followUp: {
+      nextAppointment: record.followUp.nextAppointment,
+      status: record.followUp.status
+    }
   }));
 }
 
@@ -155,10 +160,7 @@ export function searchPatientRecords(doctorId: string, query: string): PatientRe
   
   return records.filter(record =>
     record.patientId.toLowerCase().includes(lowercaseQuery) ||
-    record.personalInfo.firstName.toLowerCase().includes(lowercaseQuery) ||
-    record.personalInfo.lastName.toLowerCase().includes(lowercaseQuery) ||
-    record.personalInfo.phoneNumber.includes(query) ||
-    record.personalInfo.email?.toLowerCase().includes(lowercaseQuery)
+    record.personalInfo.phoneNumber.includes(query)
   );
 }
 
@@ -228,14 +230,11 @@ export function initializeSamplePatientRecords(doctorId: string) {
     const sampleRecords = [
       {
         personalInfo: {
-          firstName: 'Mary',
-          lastName: 'Wanjiku',
-          dateOfBirth: '1985-03-15',
-          age: 39,
           phoneNumber: '+254712345678',
-          email: 'mary.wanjiku@email.com',
+          age: 39,
+          dateOfBirth: '1985-03-15',
           address: 'Nairobi, Kenya',
-          emergencyContact: 'John Wanjiku',
+          emergencyContact: 'Emergency Contact',
           emergencyPhone: '+254723456789'
         },
         medicalHistory: {
@@ -262,20 +261,20 @@ export function initializeSamplePatientRecords(doctorId: string) {
         },
         followUp: {
           nextAppointment: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          followUpInstructions: 'Schedule colposcopy within 1 week',
+          followUpInstructions: 'Schedule colposcopy and cervical biopsy within 1 week',
+          recommendedTests: ['colposcopy', 'cervical_biopsy', 'hpv_test'],
+          testCosts: 13500, // KES 5,500 + 4,500 + 3,500
           status: 'scheduled' as const
         },
         createdBy: doctorId
       },
       {
         personalInfo: {
-          firstName: 'Grace',
-          lastName: 'Muthoni',
-          dateOfBirth: '1992-07-22',
-          age: 32,
           phoneNumber: '+254734567890',
+          age: 32,
+          dateOfBirth: '1992-07-22',
           address: 'Kiambu, Kenya',
-          emergencyContact: 'Peter Muthoni',
+          emergencyContact: 'Emergency Contact',
           emergencyPhone: '+254745678901'
         },
         medicalHistory: {
@@ -302,7 +301,9 @@ export function initializeSamplePatientRecords(doctorId: string) {
         },
         followUp: {
           nextAppointment: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-          followUpInstructions: 'Routine screening in 1 year',
+          followUpInstructions: 'Routine screening in 1 year - VIA screening recommended',
+          recommendedTests: ['via_screening', 'follow_up_pap'],
+          testCosts: 2950, // KES 150 + 2,800
           status: 'scheduled' as const
         },
         createdBy: doctorId

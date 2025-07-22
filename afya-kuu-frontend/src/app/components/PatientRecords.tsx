@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { 
-  getPatientRecords, 
+import {
+  getPatientRecords,
   getPatientSummaries,
   searchPatientRecords,
   getPatientStatistics,
@@ -11,6 +11,12 @@ import {
   type PatientRecord,
   type PatientSummary
 } from '../services/patientRecordsService';
+import {
+  sendSMSReminder,
+  generateSMSMessage,
+  formatKES,
+  getTestCost
+} from '../services/testCostsService';
 
 interface PatientRecordsProps {
   language: 'en' | 'sw';
@@ -26,6 +32,7 @@ export default function PatientRecords({ language, doctorId }: PatientRecordsPro
   const [statistics, setStatistics] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showPatientDetail, setShowPatientDetail] = useState(false);
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
 
   const content = {
     en: {
@@ -251,6 +258,48 @@ export default function PatientRecords({ language, doctorId }: PatientRecordsPro
     }
   };
 
+  const handleSendReminder = async (patient: PatientRecord) => {
+    if (!patient.followUp.nextAppointment) return;
+
+    setSendingReminder(patient.id);
+    try {
+      const patientIdentifier = patient.personalInfo.phoneNumber;
+      const appointmentDate = patient.followUp.nextAppointment;
+
+      // Get test names and costs if available
+      const testNames = patient.followUp.recommendedTests?.map(testKey => {
+        const test = getTestCost(testKey);
+        return test ? test.testName : testKey;
+      }).join(', ') || 'Follow-up appointment';
+
+      const totalCost = patient.followUp.testCosts || 0;
+
+      const message = `Hello, this is a reminder for your ${testNames} appointment on ${new Date(appointmentDate).toLocaleDateString('en-KE', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })} at Afya Kuu Clinic. Cost: ${formatKES(totalCost)}. Please arrive 30 minutes early. For queries, call us. Thank you.`;
+
+      await sendSMSReminder({
+        patientId: patient.patientId,
+        patientNumber: patient.personalInfo.phoneNumber,
+        doctorId,
+        message,
+        scheduledDate: appointmentDate,
+        testType: patient.followUp.recommendedTests?.join(',') || 'follow_up',
+        cost: totalCost
+      });
+
+      alert(language === 'en' ? 'SMS reminder sent successfully!' : 'Ukumbusho wa SMS umetumwa kwa ufanisi!');
+    } catch (error) {
+      console.error('Error sending SMS reminder:', error);
+      alert(language === 'en' ? 'Failed to send SMS reminder' : 'Imeshindwa kutuma ukumbusho wa SMS');
+    } finally {
+      setSendingReminder(null);
+    }
+  };
+
   const filteredPatients = patients.filter(patient => {
     // Search filter
     if (searchQuery) {
@@ -400,13 +449,10 @@ export default function PatientRecords({ language, doctorId }: PatientRecordsPro
                   {t.table.patientId}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t.table.name}
+                  {t.table.phone}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   {t.table.age}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t.table.phone}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   {t.table.lastAssessment}
@@ -435,14 +481,11 @@ export default function PatientRecords({ language, doctorId }: PatientRecordsPro
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                       {patient.patientId}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {patient.fullName}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white font-mono">
+                      {patient.phoneNumber}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {patient.age}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                      {patient.phoneNumber}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                       {formatDate(patient.lastAssessment)}
@@ -457,13 +500,29 @@ export default function PatientRecords({ language, doctorId }: PatientRecordsPro
                         {t.status[patient.status as keyof typeof t.status]}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                       <button
                         onClick={() => handleViewPatient(patient.patientId)}
-                        className="text-pink-600 hover:text-pink-900 mr-3"
+                        className="text-pink-600 hover:text-pink-900"
                       >
                         {t.actions.view}
                       </button>
+                      {patient.followUp.nextAppointment && (
+                        <button
+                          onClick={() => {
+                            const allRecords = getPatientRecords(doctorId);
+                            const fullPatient = allRecords.find(p => p.patientId === patient.patientId);
+                            if (fullPatient) handleSendReminder(fullPatient);
+                          }}
+                          disabled={sendingReminder === patient.id}
+                          className="text-blue-600 hover:text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {sendingReminder === patient.id
+                            ? (language === 'en' ? 'Sending...' : 'Inatuma...')
+                            : (language === 'en' ? 'Send Reminder' : 'Tuma Ukumbusho')
+                          }
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -501,33 +560,21 @@ export default function PatientRecords({ language, doctorId }: PatientRecordsPro
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                     <div>
                       <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        {t.personalInfo.firstName}
+                        {t.personalInfo.phone}
                       </label>
-                      <p className="text-gray-900 dark:text-white">{selectedPatient.personalInfo.firstName}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        {t.personalInfo.lastName}
-                      </label>
-                      <p className="text-gray-900 dark:text-white">{selectedPatient.personalInfo.lastName}</p>
+                      <p className="text-gray-900 dark:text-white font-mono text-lg">{selectedPatient.personalInfo.phoneNumber}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
                         {t.personalInfo.age}
                       </label>
-                      <p className="text-gray-900 dark:text-white">{selectedPatient.personalInfo.age}</p>
+                      <p className="text-gray-900 dark:text-white">{selectedPatient.personalInfo.age} {language === 'en' ? 'years' : 'miaka'}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        {t.personalInfo.phone}
+                        {t.personalInfo.dateOfBirth}
                       </label>
-                      <p className="text-gray-900 dark:text-white">{selectedPatient.personalInfo.phoneNumber}</p>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                        {t.personalInfo.email}
-                      </label>
-                      <p className="text-gray-900 dark:text-white">{selectedPatient.personalInfo.email || 'N/A'}</p>
+                      <p className="text-gray-900 dark:text-white">{formatDate(selectedPatient.personalInfo.dateOfBirth)}</p>
                     </div>
                     <div>
                       <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
@@ -569,6 +616,93 @@ export default function PatientRecords({ language, doctorId }: PatientRecordsPro
                         {selectedPatient.assessmentResults.recommendations}
                       </p>
                     </div>
+                  </div>
+                </div>
+
+                {/* Follow-up Information */}
+                <div>
+                  <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+                    {language === 'en' ? 'Follow-up Information' : 'Taarifa za Ufuatiliaji'}
+                  </h4>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    {selectedPatient.followUp.nextAppointment && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                            {language === 'en' ? 'Next Appointment' : 'Miadi Ijayo'}
+                          </label>
+                          <p className="text-gray-900 dark:text-white">
+                            {formatDate(selectedPatient.followUp.nextAppointment)}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                            {language === 'en' ? 'Status' : 'Hali'}
+                          </label>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(selectedPatient.followUp.status)}`}>
+                            {t.status[selectedPatient.followUp.status]}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedPatient.followUp.followUpInstructions && (
+                      <div className="mb-4">
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                          {language === 'en' ? 'Follow-up Instructions' : 'Maagizo ya Ufuatiliaji'}
+                        </label>
+                        <p className="text-gray-900 dark:text-white mt-1">
+                          {selectedPatient.followUp.followUpInstructions}
+                        </p>
+                      </div>
+                    )}
+
+                    {selectedPatient.followUp.recommendedTests && selectedPatient.followUp.recommendedTests.length > 0 && (
+                      <div className="mb-4">
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                          {language === 'en' ? 'Recommended Tests' : 'Vipimo Vinavyopendekezwa'}
+                        </label>
+                        <div className="mt-2 space-y-2">
+                          {selectedPatient.followUp.recommendedTests.map((testKey, index) => {
+                            const test = getTestCost(testKey);
+                            return test ? (
+                              <div key={index} className="flex justify-between items-center p-2 bg-white dark:bg-gray-600 rounded border">
+                                <span className="text-gray-900 dark:text-white">{test.testName}</span>
+                                <span className="text-green-600 font-semibold">{formatKES(test.cost)}</span>
+                              </div>
+                            ) : null;
+                          })}
+                          {selectedPatient.followUp.testCosts && (
+                            <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded font-semibold">
+                              <span className="text-green-800 dark:text-green-200">
+                                {language === 'en' ? 'Total Estimated Cost' : 'Jumla ya Gharama Inayokadiriwa'}
+                              </span>
+                              <span className="text-green-600">{formatKES(selectedPatient.followUp.testCosts)}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedPatient.followUp.nextAppointment && (
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => handleSendReminder(selectedPatient)}
+                          disabled={sendingReminder === selectedPatient.id}
+                          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          <span>
+                            {sendingReminder === selectedPatient.id
+                              ? (language === 'en' ? 'Sending...' : 'Inatuma...')
+                              : (language === 'en' ? 'Send SMS Reminder' : 'Tuma Ukumbusho wa SMS')
+                            }
+                          </span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

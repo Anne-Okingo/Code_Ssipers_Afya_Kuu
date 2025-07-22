@@ -13,6 +13,7 @@ import InventoryManagement from '../../components/InventoryManagement';
 import PatientRecords from '../../components/PatientRecords';
 import FeedbackSystem from '../../components/FeedbackSystem';
 import CervicalCancerResults from '../../components/CervicalCancerResults';
+import AssessmentResults from '../../components/AssessmentResults';
 
 type AssessmentStep = 'patient-info' | 'results' | 'recommendations';
 
@@ -29,6 +30,7 @@ export default function DoctorDashboard() {
   const [currentPatientId, setCurrentPatientId] = useState<string | null>(null);
 
   const [patientData, setPatientData] = useState<PatientData>({
+    phoneNumber: '',
     age: '',
     previousScreening: '',
     hpvStatus: '',
@@ -147,6 +149,7 @@ export default function DoctorDashboard() {
 
   const resetForm = () => {
     setPatientData({
+      phoneNumber: '',
       age: '',
       previousScreening: '',
       hpvStatus: '',
@@ -158,8 +161,7 @@ export default function DoctorDashboard() {
       insuranceCovered: '',
       screeningTypeLast: '',
       sexualPartners: '',
-      firstSexualActivityAge: '',
-      riskFactors: []
+      firstSexualActivityAge: ''
     });
     setPredictionResult(null);
     setCurrentStep('patient-info');
@@ -505,12 +507,47 @@ export default function DoctorDashboard() {
                         {language === 'en' ? 'Basic Information' : 'Maelezo ya Msingi'}
                       </h3>
                       <div className="grid md:grid-cols-1 gap-6">
-                        <div className="relative">
-                          <label className={`block text-sm font-bold mb-3 ${
-                            isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                          }`}>
-                            {t.assessment.fields.age} <span className="text-red-500 text-lg">*</span>
-                          </label>
+                        {/* Patient Information */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="relative">
+                            <label className={`block text-sm font-bold mb-3 ${
+                              isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                            }`}>
+                              {language === 'en' ? 'Patient Phone Number' : 'Nambari ya Simu ya Mgonjwa'} <span className="text-red-500 text-lg">*</span>
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="tel"
+                                name="phoneNumber"
+                                value={patientData.phoneNumber}
+                                onChange={handleInputChange}
+                                className={`w-full px-6 py-4 pr-16 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 placeholder-gray-400 text-lg font-medium shadow-lg transition-all duration-200 ${
+                                  isDarkMode
+                                    ? 'bg-gray-700 border-gray-600 text-white'
+                                    : 'bg-white border-gray-300 text-gray-900'
+                                }`}
+                                placeholder={language === 'en' ? 'Enter phone number (+254...)' : 'Ingiza nambari ya simu (+254...)'}
+                                pattern="^\+254[0-9]{9}$"
+                                required
+                              />
+                              <VoiceInput
+                                onTranscript={(transcript) => handleVoiceInput('phoneNumber', transcript)}
+                                language={language === 'en' ? 'en-US' : 'sw-KE'}
+                                className="absolute inset-0"
+                                fieldName="phoneNumber"
+                              />
+                            </div>
+                            <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {language === 'en' ? '📱 Format: +254712345678 (for SMS reminders)' : '📱 Muundo: +254712345678 (kwa mikumbusho ya SMS)'}
+                            </p>
+                          </div>
+
+                          <div className="relative">
+                            <label className={`block text-sm font-bold mb-3 ${
+                              isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                            }`}>
+                              {t.assessment.fields.age} <span className="text-red-500 text-lg">*</span>
+                            </label>
                           <div className="relative">
                             <input
                               type="number"
@@ -534,9 +571,10 @@ export default function DoctorDashboard() {
                               fieldName="age"
                             />
                           </div>
-                          <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            {language === 'en' ? '🎤 Click microphone or type patient age in years (required)' : '🎤 Bonyeza kipaza sauti au andika umri wa mgonjwa kwa miaka (inahitajika)'}
-                          </p>
+                            <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {language === 'en' ? '🎤 Click microphone or type patient age in years (required)' : '🎤 Bonyeza kipaza sauti au andika umri wa mgonjwa kwa miaka (inahitajika)'}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1017,6 +1055,40 @@ export default function DoctorDashboard() {
               {/* Results and Recommendations */}
               <div className="space-y-6">
                 {currentStep === 'results' && (
+                  <div>
+                    {predictionResult ? (
+                      <AssessmentResults
+                        language={language}
+                        patientData={{
+                          phoneNumber: patientData.phoneNumber,
+                          age: patientData.age
+                        }}
+                        riskLevel={predictionResult.risk_level as 'LOW' | 'MEDIUM' | 'HIGH'}
+                        riskPercentage={Math.round(predictionResult.risk_percentage)}
+                        recommendations={predictionResult.recommendation}
+                        doctorId={user?.id || 'doctor_001'}
+                        onSendReminder={(success) => {
+                          if (success) {
+                            alert(language === 'en' ? 'SMS reminder sent successfully!' : 'Ukumbusho wa SMS umetumwa kwa ufanisi!');
+                          } else {
+                            alert(language === 'en' ? 'Failed to send SMS reminder' : 'Imeshindwa kutuma ukumbusho wa SMS');
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8">
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {language === 'en' ? 'No prediction results available' : 'Hakuna matokeo ya utabiri yaliyopatikana'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Legacy Results Display (keeping for reference) */}
+                {false && currentStep === 'results' && (
                   <div className="text-center py-12">
                     {predictionResult ? (
                       <div className={`rounded-2xl p-10 mb-8 shadow-2xl transition-colors duration-200 ${
