@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Navigation from '../components/Navigation';
@@ -11,7 +11,8 @@ import ThemeToggle from '../components/ThemeToggle';
 type UserType = 'doctor' | 'admin';
 type AuthMode = 'login' | 'signup';
 
-export default function Assessment() {
+// Component that uses useSearchParams - needs to be wrapped in Suspense
+function AssessmentContent() {
   const { isDarkMode } = useTheme();
   const [language, setLanguage] = useState<'en' | 'sw'>('en');
   const [userType, setUserType] = useState<UserType>('doctor');
@@ -478,5 +479,21 @@ export default function Assessment() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main component with Suspense boundary
+export default function Assessment() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 dark:text-gray-300">Loading assessment...</p>
+        </div>
+      </div>
+    }>
+      <AssessmentContent />
+    </Suspense>
   );
 }

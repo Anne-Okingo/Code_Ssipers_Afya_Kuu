@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Check if user exists in localStorage (simulated database)
       const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
-      const existingUser = users.find((u: any) => 
+      const existingUser = users.find((u: { email: string; userType: string; password: string }) =>
         u.email === email && u.userType === userType && u.password === password
       );
       
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Check if user already exists
       const users = JSON.parse(localStorage.getItem('afya_kuu_users') || '[]');
-      const existingUser = users.find((u: any) => 
+      const existingUser = users.find((u: { email: string; userType: string }) =>
         u.email === userData.email && u.userType === userData.userType
       );
       
