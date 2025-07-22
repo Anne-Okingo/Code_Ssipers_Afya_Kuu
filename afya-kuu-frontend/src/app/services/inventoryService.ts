@@ -202,9 +202,9 @@ export function initializeSampleInventory() {
       {
         name: 'HPV Test Kits (careHPV)',
         category: 'test_kits',
-        description: 'High-risk HPV DNA test kits for cervical cancer screening - Kenyan standard',
+        description: 'High-risk HPV DNA test kits for cervical cancer screening - MOH subsidized',
         quantity: 50,
-        unitCost: 3500.00, // KES 3,500 per test (realistic Kenyan pricing)
+        unitCost: 1200.00, // KES 1,200 per test (MOH/PEPFAR subsidized rate)
         supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         expiryDate: '2025-12-31',
         addedBy: 'admin_001',
@@ -215,8 +215,8 @@ export function initializeSampleInventory() {
         category: 'test_kits',
         description: 'Complete Pap smear collection and transport kits with cytology processing',
         quantity: 30,
-        unitCost: 2800.00, // KES 2,800 per test (including lab processing)
-        supplier: 'Lancet Kenya',
+        unitCost: 800.00, // KES 800 per test (public facility rate)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         expiryDate: '2025-06-30',
         addedBy: 'admin_001',
         minimumThreshold: 5
@@ -226,8 +226,8 @@ export function initializeSampleInventory() {
         category: 'medical_equipment',
         description: 'Digital colposcope with camera for cervical examination and documentation',
         quantity: 2,
-        unitCost: 850000.00, // KES 850,000 (realistic price for digital colposcope in Kenya)
-        supplier: 'Philips Healthcare Kenya',
+        unitCost: 450000.00, // KES 450,000 (MOH procurement rate for basic digital colposcope)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         addedBy: 'admin_001',
         minimumThreshold: 1
       },
@@ -236,7 +236,7 @@ export function initializeSampleInventory() {
         category: 'test_kits',
         description: 'Visual Inspection with Acetic Acid - complete screening kit',
         quantity: 100,
-        unitCost: 150.00, // KES 150 per VIA test (very affordable screening)
+        unitCost: 50.00, // KES 50 per VIA test (MOH standard rate)
         supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         expiryDate: '2025-08-15',
         addedBy: 'admin_001',
@@ -247,7 +247,7 @@ export function initializeSampleInventory() {
         category: 'test_kits',
         description: 'Visual Inspection with Lugols Iodine for enhanced cervical screening',
         quantity: 80,
-        unitCost: 200.00, // KES 200 per VILI test
+        unitCost: 100.00, // KES 100 per VILI test (MOH standard rate)
         supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         expiryDate: '2025-09-30',
         addedBy: 'admin_001',
@@ -258,8 +258,8 @@ export function initializeSampleInventory() {
         category: 'test_kits',
         description: 'Complete cervical biopsy kit with forceps and specimen containers',
         quantity: 25,
-        unitCost: 4500.00, // KES 4,500 per biopsy (including histopathology)
-        supplier: 'Pathologists Lancet Kenya',
+        unitCost: 1000.00, // KES 1,000 per biopsy (public facility rate including histopathology)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         addedBy: 'admin_001',
         minimumThreshold: 5
       },
@@ -268,8 +268,8 @@ export function initializeSampleInventory() {
         category: 'consumables',
         description: 'Single-use plastic speculums for gynecological exams (pack of 50)',
         quantity: 100,
-        unitCost: 45.00, // KES 45 per speculum
-        supplier: 'Surgipharm Kenya',
+        unitCost: 15.00, // KES 15 per speculum (KEMSA rate)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         expiryDate: '2026-01-31',
         addedBy: 'admin_001',
         minimumThreshold: 20
@@ -279,8 +279,8 @@ export function initializeSampleInventory() {
         category: 'consumables',
         description: 'Latex-free nitrile examination gloves (box of 100 pairs)',
         quantity: 50,
-        unitCost: 1200.00, // KES 1,200 per box (100 pairs)
-        supplier: 'Surgipharm Kenya',
+        unitCost: 400.00, // KES 400 per box (KEMSA procurement rate)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         expiryDate: '2026-03-31',
         addedBy: 'admin_001',
         minimumThreshold: 10
@@ -290,8 +290,8 @@ export function initializeSampleInventory() {
         category: 'medical_equipment',
         description: 'Cryotherapy unit for treating precancerous cervical lesions',
         quantity: 1,
-        unitCost: 450000.00, // KES 450,000 (realistic price for cryotherapy unit)
-        supplier: 'Wallach Surgical Devices',
+        unitCost: 180000.00, // KES 180,000 (MOH procurement rate for basic cryotherapy unit)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         addedBy: 'admin_001',
         minimumThreshold: 1
       },
@@ -300,8 +300,8 @@ export function initializeSampleInventory() {
         category: 'medical_equipment',
         description: 'Loop Electrosurgical Excision Procedure equipment for cervical treatment',
         quantity: 1,
-        unitCost: 750000.00, // KES 750,000 (LEEP equipment cost)
-        supplier: 'CooperSurgical Kenya',
+        unitCost: 350000.00, // KES 350,000 (MOH procurement rate for LEEP equipment)
+        supplier: 'Kenya Medical Supplies Authority (KEMSA)',
         addedBy: 'admin_001',
         minimumThreshold: 1
       }

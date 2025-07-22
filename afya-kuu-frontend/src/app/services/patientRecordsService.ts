@@ -263,7 +263,7 @@ export function initializeSamplePatientRecords(doctorId: string) {
           nextAppointment: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
           followUpInstructions: 'Schedule colposcopy and cervical biopsy within 1 week',
           recommendedTests: ['colposcopy', 'cervical_biopsy', 'hpv_test'],
-          testCosts: 13500, // KES 5,500 + 4,500 + 3,500
+          testCosts: 3700, // KES 1,500 + 1,000 + 1,200 (updated MOH rates)
           status: 'scheduled' as const
         },
         createdBy: doctorId
@@ -303,7 +303,7 @@ export function initializeSamplePatientRecords(doctorId: string) {
           nextAppointment: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
           followUpInstructions: 'Routine screening in 1 year - VIA screening recommended',
           recommendedTests: ['via_screening', 'follow_up_pap'],
-          testCosts: 2950, // KES 150 + 2,800
+          testCosts: 850, // KES 50 + 800 (updated MOH rates)
           status: 'scheduled' as const
         },
         createdBy: doctorId

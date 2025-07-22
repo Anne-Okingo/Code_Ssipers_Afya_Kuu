@@ -23,12 +23,12 @@ export interface SMSReminder {
   createdAt: string;
 }
 
-// Kenyan Standard Test Costs (in KES)
+// Kenyan Standard Test Costs (in KES) - Based on MOH Guidelines and Public Health Facilities
 export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
-  // Screening Tests
+  // Screening Tests - Public Health Facility Rates
   'via_screening': {
     testName: 'VIA Screening',
-    cost: 150,
+    cost: 50, // KES 50 - Standard MOH rate for public facilities
     description: 'Visual Inspection with Acetic Acid - basic cervical cancer screening',
     category: 'screening',
     duration: '15 minutes',
@@ -36,7 +36,7 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'vili_screening': {
     testName: 'VILI Screening',
-    cost: 200,
+    cost: 100, // KES 100 - Enhanced VIA screening
     description: 'Visual Inspection with Lugols Iodine - enhanced cervical screening',
     category: 'screening',
     duration: '20 minutes',
@@ -44,7 +44,7 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'pap_smear': {
     testName: 'Pap Smear Test',
-    cost: 2800,
+    cost: 800, // KES 800 - Standard rate in public facilities
     description: 'Cervical cytology test for abnormal cells detection',
     category: 'screening',
     duration: '10 minutes',
@@ -52,17 +52,17 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'hpv_test': {
     testName: 'HPV DNA Test',
-    cost: 3500,
+    cost: 1200, // KES 1,200 - Subsidized rate through PEPFAR/USAID programs
     description: 'High-risk HPV DNA detection test',
     category: 'screening',
     duration: '10 minutes',
     preparation: 'No sexual intercourse 24 hours before test'
   },
   
-  // Diagnostic Tests
+  // Diagnostic Tests - Public Health Facility Rates
   'colposcopy': {
     testName: 'Colposcopy Examination',
-    cost: 5500,
+    cost: 1500, // KES 1,500 - Standard rate in Level 4/5 hospitals
     description: 'Detailed examination of cervix using colposcope',
     category: 'diagnostic',
     duration: '30 minutes',
@@ -70,7 +70,7 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'cervical_biopsy': {
     testName: 'Cervical Biopsy',
-    cost: 4500,
+    cost: 1000, // KES 1,000 - Including histopathology in public facilities
     description: 'Tissue sample collection for histopathological examination',
     category: 'diagnostic',
     duration: '20 minutes',
@@ -78,17 +78,17 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'endocervical_curettage': {
     testName: 'Endocervical Curettage (ECC)',
-    cost: 3800,
+    cost: 800, // KES 800 - Standard procedure cost
     description: 'Sampling of endocervical canal tissue',
     category: 'diagnostic',
     duration: '15 minutes',
     preparation: 'Pain medication may be taken 1 hour before procedure'
   },
   
-  // Imaging Tests
+  // Imaging Tests - Public Health Facility Rates
   'pelvic_ultrasound': {
     testName: 'Pelvic Ultrasound',
-    cost: 2500,
+    cost: 500, // KES 500 - Standard rate in public hospitals
     description: 'Ultrasound examination of pelvic organs',
     category: 'diagnostic',
     duration: '30 minutes',
@@ -96,7 +96,7 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'ct_pelvis': {
     testName: 'CT Scan Pelvis',
-    cost: 15000,
+    cost: 8000, // KES 8,000 - Subsidized rate in public referral hospitals
     description: 'Computed tomography scan of pelvic region',
     category: 'diagnostic',
     duration: '45 minutes',
@@ -104,17 +104,17 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'mri_pelvis': {
     testName: 'MRI Pelvis',
-    cost: 25000,
+    cost: 12000, // KES 12,000 - Public hospital rate (KNH, Moi Teaching)
     description: 'Magnetic resonance imaging of pelvic organs',
     category: 'diagnostic',
     duration: '60 minutes',
     preparation: 'Remove all metal objects, inform about implants'
   },
   
-  // Treatment Procedures
+  // Treatment Procedures - Public Health Facility Rates
   'cryotherapy': {
     testName: 'Cryotherapy Treatment',
-    cost: 8000,
+    cost: 2000, // KES 2,000 - Standard MOH rate for cryotherapy
     description: 'Freezing treatment for precancerous cervical lesions',
     category: 'treatment',
     duration: '20 minutes',
@@ -122,7 +122,7 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'leep_procedure': {
     testName: 'LEEP Procedure',
-    cost: 15000,
+    cost: 5000, // KES 5,000 - Public hospital rate for LEEP
     description: 'Loop Electrosurgical Excision Procedure for cervical lesions',
     category: 'treatment',
     duration: '30 minutes',
@@ -130,17 +130,17 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'cone_biopsy': {
     testName: 'Cone Biopsy',
-    cost: 25000,
+    cost: 8000, // KES 8,000 - Public hospital surgical rate
     description: 'Surgical removal of cone-shaped tissue from cervix',
     category: 'treatment',
     duration: '45 minutes',
     preparation: 'General anesthesia, fasting 8 hours before'
   },
   
-  // Follow-up Tests
+  // Follow-up Tests - Public Health Facility Rates
   'follow_up_pap': {
     testName: 'Follow-up Pap Smear',
-    cost: 2800,
+    cost: 800, // KES 800 - Same as initial Pap smear
     description: 'Post-treatment Pap smear for monitoring',
     category: 'follow_up',
     duration: '10 minutes',
@@ -148,7 +148,7 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'follow_up_hpv': {
     testName: 'Follow-up HPV Test',
-    cost: 3500,
+    cost: 1200, // KES 1,200 - Same as initial HPV test
     description: 'Post-treatment HPV testing for clearance',
     category: 'follow_up',
     duration: '10 minutes',
@@ -156,7 +156,7 @@ export const KENYAN_TEST_COSTS: Record<string, TestCost> = {
   },
   'follow_up_colposcopy': {
     testName: 'Follow-up Colposcopy',
-    cost: 5500,
+    cost: 1500, // KES 1,500 - Same as initial colposcopy
     description: 'Post-treatment colposcopic examination',
     category: 'follow_up',
     duration: '30 minutes',
