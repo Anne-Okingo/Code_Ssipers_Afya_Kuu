@@ -1121,8 +1121,11 @@ if len(train_single_classes) > 0:
     print(f"🔧 Found {len(train_single_classes)} single-instance classes in training set.")
     print("   Duplicating these samples ONLY in training set (NO test contamination)")
 
+    # ✅ FIX: Align y_train index to X_train
+    y_train = pd.Series(y_train, index=X_train.index)
+
     # Find indices of single-instance classes in training set
-    indices_to_duplicate = pd.Series(y_train).isin(train_single_classes)
+    indices_to_duplicate = y_train.isin(train_single_classes)
 
     # Duplicate only the training samples
     X_train_to_duplicate = X_train[indices_to_duplicate]
@@ -1130,7 +1133,7 @@ if len(train_single_classes) > 0:
 
     # Add duplicates to training set ONLY
     X_train = pd.concat([X_train, X_train_to_duplicate], ignore_index=True)
-    y_train = pd.concat([pd.Series(y_train), pd.Series(y_train_to_duplicate)], ignore_index=True).values
+    y_train = pd.concat([y_train, y_train_to_duplicate], ignore_index=True).values
 
     print(f"Training set size after duplication: {len(X_train)}")
     print(f"Test set size (unchanged): {len(X_test)}")
@@ -1142,6 +1145,7 @@ if len(train_single_classes) > 0:
 
 else:
     print("✅ No single-instance classes in training set. No duplication needed.")
+
 print("Data successfully split.")
 print(f"Training set size: {len(X_train)} rows")
 print(f"Test set size: {len(X_test)} rows")
@@ -1446,5 +1450,11 @@ for model_name, result in results.items():
 
 # %%
 
+import joblib
+
+# Save trained model to disk
+joblib.dump(model, "cervical_model.pkl")
+joblib.dump(X_train.columns.tolist(), "model_features.pkl")
+print("✅ Model saved as cervical_model.pkl")
 
 
