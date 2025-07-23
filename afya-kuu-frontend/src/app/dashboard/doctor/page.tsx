@@ -521,11 +521,7 @@ export default function DoctorDashboard() {
                                 name="phoneNumber"
                                 value={patientData.phoneNumber}
                                 onChange={handleInputChange}
-                                className={`w-full px-6 py-4 pr-16 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 placeholder-gray-400 text-lg font-medium shadow-lg transition-all duration-200 ${
-                                  isDarkMode
-                                    ? 'bg-gray-700 border-gray-600 text-white'
-                                    : 'bg-white border-gray-300 text-gray-900'
-                                }`}
+                                className="enhanced-input"
                                 placeholder={language === 'en' ? 'Enter phone number (+254...)' : 'Ingiza nambari ya simu (+254...)'}
                                 pattern="^\+254[0-9]{9}$"
                                 required
@@ -554,11 +550,7 @@ export default function DoctorDashboard() {
                               name="age"
                               value={patientData.age}
                               onChange={handleInputChange}
-                              className={`w-full px-6 py-4 pr-16 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 placeholder-gray-400 text-lg font-medium shadow-lg transition-all duration-200 ${
-                                isDarkMode
-                                  ? 'bg-gray-700 border-gray-600 text-white'
-                                  : 'bg-white border-gray-300 text-gray-900'
-                              }`}
+                              className="enhanced-input"
                               placeholder={language === 'en' ? 'Enter patient age (e.g., 25)' : 'Ingiza umri wa mgonjwa (mfano, 25)'}
                               min="1"
                               max="100"

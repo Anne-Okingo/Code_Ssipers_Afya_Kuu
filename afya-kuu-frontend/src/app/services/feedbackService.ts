@@ -1,4 +1,35 @@
 // Feedback Management Service for Afya Kuu Platform
+'use client';
+
+// Real-time sync configuration
+const FEEDBACK_SYNC_EVENT = 'feedback_updated';
+const FEEDBACK_STORAGE_KEY = 'afya_kuu_feedback';
+
+// Custom event emitter for real-time feedback sync
+class FeedbackEventEmitter {
+  private listeners: { [key: string]: Function[] } = {};
+
+  on(event: string, callback: Function) {
+    if (!this.listeners[event]) {
+      this.listeners[event] = [];
+    }
+    this.listeners[event].push(callback);
+  }
+
+  off(event: string, callback: Function) {
+    if (this.listeners[event]) {
+      this.listeners[event] = this.listeners[event].filter(cb => cb !== callback);
+    }
+  }
+
+  emit(event: string, data?: any) {
+    if (this.listeners[event]) {
+      this.listeners[event].forEach(callback => callback(data));
+    }
+  }
+}
+
+export const feedbackEmitter = new FeedbackEventEmitter();
 
 export interface FeedbackItem {
   id: string;
