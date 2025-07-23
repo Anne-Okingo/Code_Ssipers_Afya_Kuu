@@ -3,6 +3,10 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
 
 export interface PatientData {
+  // Personal Information
+  phoneNumber: string;
+
+  // Medical Assessment Data
   age: string;
   previousScreening: string;
   hpvStatus: string;

@@ -143,6 +143,7 @@ cd afya-kuu-frontend
 
 # Install dependencies
 npm install
+npm run dev
 
 # Set up environment variables (API points to port 5001)
 echo "NEXT_PUBLIC_API_URL=http://localhost:5001" > .env.local

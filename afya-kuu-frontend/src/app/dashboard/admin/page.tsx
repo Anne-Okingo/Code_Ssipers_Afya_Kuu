@@ -4,11 +4,18 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme } from '../../contexts/ThemeContext';
+import ThemeToggle from '../../components/ThemeToggle';
+import AdminInventoryManagement from '../../components/AdminInventoryManagement';
+import ResourcesManagement from '../../components/ResourcesManagement';
+import PatientRecords from '../../components/PatientRecords';
+import FeedbackSystem from '../../components/FeedbackSystem';
 
-type AdminView = 'overview' | 'inventory' | 'resources' | 'reports' | 'feedback';
+type AdminView = 'overview' | 'inventory' | 'patients' | 'resources' | 'reports' | 'feedback';
 
 export default function AdminDashboard() {
   const { user, logout } = useAuth();
+  const { isDarkMode } = useTheme();
   const [language, setLanguage] = useState<'en' | 'sw'>('en');
   const [currentView, setCurrentView] = useState<AdminView>('overview');
 
@@ -19,6 +26,7 @@ export default function AdminDashboard() {
       nav: {
         overview: "Overview",
         inventory: "Inventory Management",
+        patients: "Patient Records",
         resources: "Resources",
         reports: "Reports & Analytics",
         feedback: "Feedback",
@@ -92,6 +100,7 @@ export default function AdminDashboard() {
       nav: {
         overview: "Muhtasari",
         inventory: "Usimamizi wa Hesabu",
+        patients: "Rekodi za Wagonjwa",
         resources: "Rasilimali",
         reports: "Ripoti na Uchambuzi",
         feedback: "Maoni",
@@ -181,9 +190,13 @@ export default function AdminDashboard() {
 
   return (
     <ProtectedRoute requiredUserType="admin">
-      <div className="min-h-screen bg-gray-50">
+      <div className={`min-h-screen transition-colors duration-200 ${
+        isDarkMode ? 'bg-gray-900' : 'bg-gray-50'
+      }`}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className={`shadow-sm border-b transition-colors duration-200 ${
+        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+      }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -192,20 +205,21 @@ export default function AdminDashboard() {
                 <span className="text-white font-bold text-lg">A</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">Afya Kuu</h1>
-                <p className="text-xs text-gray-600">Prime Health</p>
+                <h1 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Afya Kuu</h1>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Prime Health</p>
               </div>
             </div>
 
-            {/* User Info & Language Toggle */}
+            {/* User Info & Controls */}
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <button
                 onClick={() => setLanguage(language === 'en' ? 'sw' : 'en')}
                 className="px-4 py-2 text-sm font-medium bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-lg hover:from-pink-600 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md"
               >
                 {language === 'en' ? 'SW' : 'EN'}
               </button>
-              <div className="text-sm text-gray-600">
+              <div className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                 Admin - {user?.profileName || 'User'}
               </div>
               <button
@@ -223,8 +237,12 @@ export default function AdminDashboard() {
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar Navigation */}
           <div className="lg:col-span-1">
-            <nav className="bg-white rounded-lg shadow-sm p-4">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.title}</h2>
+            <nav className={`rounded-lg shadow-sm p-4 transition-colors duration-200 ${
+              isDarkMode ? 'bg-gray-800' : 'bg-white'
+            }`}>
+              <h2 className={`text-lg font-semibold mb-4 ${
+                isDarkMode ? 'text-white' : 'text-gray-900'
+              }`}>{t.title}</h2>
               <ul className="space-y-2">
                 {Object.entries(t.nav).slice(0, -1).map(([key, label]) => (
                   <li key={key}>
@@ -232,8 +250,10 @@ export default function AdminDashboard() {
                       onClick={() => setCurrentView(key as AdminView)}
                       className={`w-full text-left px-3 py-2 rounded-md font-medium transition-colors ${
                         currentView === key
-                          ? 'text-pink-600 bg-pink-50'
-                          : 'text-gray-700 hover:bg-gray-50'
+                          ? 'text-pink-600 bg-pink-50 dark:bg-pink-900/20'
+                          : isDarkMode
+                            ? 'text-gray-300 hover:bg-gray-700'
+                            : 'text-gray-700 hover:bg-gray-50'
                       }`}
                     >
                       {label}
@@ -300,91 +320,47 @@ export default function AdminDashboard() {
 
             {/* Inventory Management */}
             {currentView === 'inventory' && (
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold text-gray-900">{t.inventory.title}</h2>
-                  <button className="bg-pink-600 text-white px-4 py-2 rounded-md hover:bg-pink-700 transition-colors">
-                    {t.inventory.actions.addStock}
-                  </button>
-                </div>
+              <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                isDarkMode ? 'bg-gray-800' : 'bg-white'
+              }`}>
+                <AdminInventoryManagement
+                  language={language}
+                />
+              </div>
+            )}
 
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          {language === 'en' ? 'Item' : 'Kitu'}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          {language === 'en' ? 'Current Stock' : 'Hesabu ya Sasa'}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          {language === 'en' ? 'Minimum' : 'Kiwango cha Chini'}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          {language === 'en' ? 'Status' : 'Hali'}
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          {language === 'en' ? 'Actions' : 'Hatua'}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {t.inventory.items.map((item, index) => (
-                        <tr key={index}>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                            {item.name}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {item.current}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {item.minimum}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
-                              {item.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <button className="text-pink-600 hover:text-pink-700 mr-3">
-                              {language === 'en' ? 'Update' : 'Sasisha'}
-                            </button>
-                            <button className="text-blue-600 hover:text-blue-700">
-                              {language === 'en' ? 'Order' : 'Agiza'}
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+            {/* Patient Records */}
+            {currentView === 'patients' && (
+              <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                isDarkMode ? 'bg-gray-800' : 'bg-white'
+              }`}>
+                <PatientRecords
+                  language={language}
+                  doctorId="admin_view_all"
+                />
+                <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                    {language === 'en' ? 'Admin Patient Overview' : 'Muhtasari wa Wagonjwa wa Msimamizi'}
+                  </h3>
+                  <p className="text-blue-700 dark:text-blue-300">
+                    {language === 'en'
+                      ? 'View all patient records across the facility. Monitor assessment trends, risk distributions, and follow-up compliance.'
+                      : 'Ona rekodi zote za wagonjwa katika kituo. Fuatilia mielekeo ya tathmini, usambazaji wa hatari, na kufuata maagizo.'
+                    }
+                  </p>
                 </div>
               </div>
             )}
 
             {/* Resources */}
             {currentView === 'resources' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">{t.resources.title}</h2>
-                
-                <div className="grid md:grid-cols-1 lg:grid-cols-1 gap-6">
-                  {t.resources.categories.map((category, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow-sm p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">{category.title}</h3>
-                      <ul className="space-y-2">
-                        {category.items.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex items-center space-x-3">
-                            <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                            <span className="text-gray-700">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <button className="mt-4 text-pink-600 hover:text-pink-700 text-sm font-medium">
-                        {language === 'en' ? 'Add New' : 'Ongeza Mpya'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <ResourcesManagement
+                  language={language}
+                  userRole="admin"
+                  userId={user?.id || 'admin_001'}
+                  userName={user?.profileName || user?.email || 'Admin'}
+                />
               </div>
             )}
 
@@ -424,45 +400,15 @@ export default function AdminDashboard() {
 
             {/* Feedback */}
             {currentView === 'feedback' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {language === 'en' ? 'Platform Feedback' : 'Maoni ya Jukwaa'}
-                </h2>
-                
-                <div className="bg-white rounded-lg shadow-sm p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    {language === 'en' ? 'Recent Feedback from Doctors' : 'Maoni ya Hivi Karibuni kutoka kwa Madaktari'}
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="border-l-4 border-green-500 pl-4">
-                      <p className="text-gray-700 mb-2">
-                        {language === 'en' 
-                          ? '"The AI predictions are very accurate and help me make better decisions."'
-                          : '"Utabiri wa AI ni sahihi sana na unanisaidia kufanya maamuzi bora."'
-                        }
-                      </p>
-                      <p className="text-sm text-gray-500">Dr. Jane Smith - 2 days ago</p>
-                    </div>
-                    <div className="border-l-4 border-yellow-500 pl-4">
-                      <p className="text-gray-700 mb-2">
-                        {language === 'en' 
-                          ? '"Would like to see more detailed risk factor analysis."'
-                          : '"Ningependa kuona uchambuzi wa kina zaidi wa mambo ya hatari."'
-                        }
-                      </p>
-                      <p className="text-sm text-gray-500">Dr. John Doe - 3 days ago</p>
-                    </div>
-                    <div className="border-l-4 border-blue-500 pl-4">
-                      <p className="text-gray-700 mb-2">
-                        {language === 'en' 
-                          ? '"The inventory tracking feature is very helpful."'
-                          : '"Kipengele cha kufuatilia hesabu ni cha msaada sana."'
-                        }
-                      </p>
-                      <p className="text-sm text-gray-500">Dr. Mary Johnson - 5 days ago</p>
-                    </div>
-                  </div>
-                </div>
+              <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                isDarkMode ? 'bg-gray-800' : 'bg-white'
+              }`}>
+                <FeedbackSystem
+                  language={language}
+                  userId={user?.id || 'admin_001'}
+                  userRole="admin"
+                  userName={user?.email || 'Admin'}
+                />
               </div>
             )}
           </div>

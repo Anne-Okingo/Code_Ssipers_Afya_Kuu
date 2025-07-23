@@ -9,6 +9,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import ThemeToggle from '../../components/ThemeToggle';
 import VoiceInput from '../../components/VoiceInput';
+import InventoryManagement from '../../components/InventoryManagement';
+import ResourcesManagement from '../../components/ResourcesManagement';
+import PatientRecords from '../../components/PatientRecords';
+import FeedbackSystem from '../../components/FeedbackSystem';
+import CervicalCancerResults from '../../components/CervicalCancerResults';
+import AssessmentResults from '../../components/AssessmentResults';
 
 type AssessmentStep = 'patient-info' | 'results' | 'recommendations';
 
@@ -16,6 +22,7 @@ export default function DoctorDashboard() {
   const { user, logout } = useAuth();
   const { isDarkMode } = useTheme();
   const [language, setLanguage] = useState<'en' | 'sw'>('en');
+  const [activeTab, setActiveTab] = useState<'assessment' | 'inventory' | 'patients' | 'resources' | 'feedback' | 'results'>('assessment');
   const [currentStep, setCurrentStep] = useState<AssessmentStep>('patient-info');
   const [isLoading, setIsLoading] = useState(false);
   const [predictionResult, setPredictionResult] = useState<PredictionResponse | null>(null);
@@ -24,6 +31,7 @@ export default function DoctorDashboard() {
   const [currentPatientId, setCurrentPatientId] = useState<string | null>(null);
 
   const [patientData, setPatientData] = useState<PatientData>({
+    phoneNumber: '',
     age: '',
     previousScreening: '',
     hpvStatus: '',
@@ -49,6 +57,7 @@ export default function DoctorDashboard() {
         patients: "Patient Records",
         resources: "Resources",
         feedback: "Feedback",
+        results: "Cancer Results",
         logout: "Logout"
       },
       assessment: {
@@ -89,6 +98,7 @@ export default function DoctorDashboard() {
         patients: "Rekodi za Wagonjwa",
         resources: "Rasilimali",
         feedback: "Maoni",
+        results: "Matokeo ya Saratani",
         logout: "Toka"
       },
       assessment: {
@@ -140,6 +150,7 @@ export default function DoctorDashboard() {
 
   const resetForm = () => {
     setPatientData({
+      phoneNumber: '',
       age: '',
       previousScreening: '',
       hpvStatus: '',
@@ -151,8 +162,7 @@ export default function DoctorDashboard() {
       insuranceCovered: '',
       screeningTypeLast: '',
       sexualPartners: '',
-      firstSexualActivityAge: '',
-      riskFactors: []
+      firstSexualActivityAge: ''
     });
     setPredictionResult(null);
     setCurrentStep('patient-info');
@@ -339,28 +349,75 @@ export default function DoctorDashboard() {
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">{t.title}</h2>
                 <ul className="space-y-2">
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-pink-600 bg-pink-50 rounded-md font-medium">
+                    <button
+                      onClick={() => setActiveTab('assessment')}
+                      className={`w-full text-left px-3 py-2 rounded-md font-medium ${
+                        activeTab === 'assessment'
+                          ? 'text-pink-600 bg-pink-50'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.assessment}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('inventory')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'inventory'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.inventory}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('patients')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'patients'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.patients}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('resources')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'resources'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.resources}
                     </button>
                   </li>
                   <li>
-                    <button className="w-full text-left px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-md">
+                    <button
+                      onClick={() => setActiveTab('feedback')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'feedback'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
                       {t.nav.feedback}
+                    </button>
+                  </li>
+                  <li>
+                    <button
+                      onClick={() => setActiveTab('results')}
+                      className={`w-full text-left px-3 py-2 rounded-md ${
+                        activeTab === 'results'
+                          ? 'text-pink-600 bg-pink-50 font-medium'
+                          : 'text-gray-600 hover:bg-gray-50'
+                      }`}
+                    >
+                      {t.nav.results}
                     </button>
                   </li>
                 </ul>
@@ -396,8 +453,8 @@ export default function DoctorDashboard() {
 
             {/* Main Content */}
             <div className="lg:col-span-3">
-              {/* Patient Assessment Form */}
-              {currentStep === 'patient-info' && (
+              {/* Assessment Tab */}
+              {activeTab === 'assessment' && currentStep === 'patient-info' && (
                 <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
                   isDarkMode ? 'bg-gray-800' : 'bg-white'
                 }`}>
@@ -451,23 +508,50 @@ export default function DoctorDashboard() {
                         {language === 'en' ? 'Basic Information' : 'Maelezo ya Msingi'}
                       </h3>
                       <div className="grid md:grid-cols-1 gap-6">
-                        <div className="relative">
-                          <label className={`block text-sm font-bold mb-3 ${
-                            isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                          }`}>
-                            {t.assessment.fields.age} <span className="text-red-500 text-lg">*</span>
-                          </label>
+                        {/* Patient Information */}
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="relative">
+                            <label className={`block text-sm font-bold mb-3 ${
+                              isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                            }`}>
+                              {language === 'en' ? 'Patient Phone Number' : 'Nambari ya Simu ya Mgonjwa'} <span className="text-red-500 text-lg">*</span>
+                            </label>
+                            <div className="relative">
+                              <input
+                                type="tel"
+                                name="phoneNumber"
+                                value={patientData.phoneNumber}
+                                onChange={handleInputChange}
+                                className="enhanced-input"
+                                placeholder={language === 'en' ? 'Enter phone number (+254...)' : 'Ingiza nambari ya simu (+254...)'}
+                                pattern="^\+254[0-9]{9}$"
+                                required
+                              />
+                              <VoiceInput
+                                onTranscript={(transcript) => handleVoiceInput('phoneNumber', transcript)}
+                                language={language === 'en' ? 'en-US' : 'sw-KE'}
+                                className="absolute inset-0"
+                                fieldName="phoneNumber"
+                              />
+                            </div>
+                            <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {language === 'en' ? '📱 Format: +254712345678 (for SMS reminders)' : '📱 Muundo: +254712345678 (kwa mikumbusho ya SMS)'}
+                            </p>
+                          </div>
+
+                          <div className="relative">
+                            <label className={`block text-sm font-bold mb-3 ${
+                              isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                            }`}>
+                              {t.assessment.fields.age} <span className="text-red-500 text-lg">*</span>
+                            </label>
                           <div className="relative">
                             <input
                               type="number"
                               name="age"
                               value={patientData.age}
                               onChange={handleInputChange}
-                              className={`w-full px-6 py-4 pr-16 border-2 rounded-xl focus:outline-none focus:ring-4 focus:ring-pink-500/20 focus:border-pink-500 placeholder-gray-400 text-lg font-medium shadow-lg transition-all duration-200 ${
-                                isDarkMode
-                                  ? 'bg-gray-700 border-gray-600 text-white'
-                                  : 'bg-white border-gray-300 text-gray-900'
-                              }`}
+                              className="enhanced-input"
                               placeholder={language === 'en' ? 'Enter patient age (e.g., 25)' : 'Ingiza umri wa mgonjwa (mfano, 25)'}
                               min="1"
                               max="100"
@@ -480,9 +564,10 @@ export default function DoctorDashboard() {
                               fieldName="age"
                             />
                           </div>
-                          <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                            {language === 'en' ? '🎤 Click microphone or type patient age in years (required)' : '🎤 Bonyeza kipaza sauti au andika umri wa mgonjwa kwa miaka (inahitajika)'}
-                          </p>
+                            <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {language === 'en' ? '🎤 Click microphone or type patient age in years (required)' : '🎤 Bonyeza kipaza sauti au andika umri wa mgonjwa kwa miaka (inahitajika)'}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -963,6 +1048,44 @@ export default function DoctorDashboard() {
               {/* Results and Recommendations */}
               <div className="space-y-6">
                 {currentStep === 'results' && (
+                  <div>
+                    {predictionResult ? (
+                      <AssessmentResults
+                        language={language}
+                        patientData={{
+                          phoneNumber: patientData.phoneNumber,
+                          age: patientData.age
+                        }}
+                        riskLevel={predictionResult.risk_level as 'LOW' | 'MEDIUM' | 'HIGH'}
+                        riskPercentage={Math.round(predictionResult.risk_percentage)}
+                        recommendations={predictionResult.recommendation}
+                        doctorId={user?.id || 'doctor_001'}
+                        // Pass exact model results
+                        riskPrediction={predictionResult.risk_prediction}
+                        riskProbability={predictionResult.risk_probability}
+                        modelRiskLevel={predictionResult.risk_level}
+                        onSendReminder={(success) => {
+                          if (success) {
+                            alert(language === 'en' ? 'SMS reminder sent successfully!' : 'Ukumbusho wa SMS umetumwa kwa ufanisi!');
+                          } else {
+                            alert(language === 'en' ? 'Failed to send SMS reminder' : 'Imeshindwa kutuma ukumbusho wa SMS');
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="text-center py-12">
+                        <div className="bg-gray-100 dark:bg-gray-800 rounded-lg p-8">
+                          <p className="text-gray-600 dark:text-gray-400">
+                            {language === 'en' ? 'No prediction results available' : 'Hakuna matokeo ya utabiri yaliyopatikana'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Legacy Results Display (keeping for reference) */}
+                {false && currentStep === 'results' && (
                   <div className="text-center py-12">
                     {predictionResult ? (
                       <div className={`rounded-2xl p-10 mb-8 shadow-2xl transition-colors duration-200 ${
@@ -1094,6 +1217,70 @@ export default function DoctorDashboard() {
                     </div>
                   </div>
                 )}
+
+              {/* Inventory Tab */}
+              {activeTab === 'inventory' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <InventoryManagement
+                    language={language}
+                    userRole="doctor"
+                  />
+                </div>
+              )}
+
+              {/* Patient Records Tab */}
+              {activeTab === 'patients' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <PatientRecords
+                    language={language}
+                    doctorId={user?.id || 'doctor_001'}
+                  />
+                </div>
+              )}
+
+              {/* Resources Tab */}
+              {activeTab === 'resources' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <ResourcesManagement
+                    language={language}
+                    userRole="doctor"
+                    userId={user?.id || 'doctor_001'}
+                    userName={user?.profileName || user?.email || 'Doctor'}
+                  />
+                </div>
+              )}
+
+              {/* Feedback Tab */}
+              {activeTab === 'feedback' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <FeedbackSystem
+                    language={language}
+                    userId={user?.id || 'doctor_001'}
+                    userRole="doctor"
+                    userName={user?.email || 'Doctor'}
+                  />
+                </div>
+              )}
+
+              {/* Cancer Results Tab */}
+              {activeTab === 'results' && (
+                <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
+                  isDarkMode ? 'bg-gray-800' : 'bg-white'
+                }`}>
+                  <CervicalCancerResults
+                    language={language}
+                    doctorId={user?.id || 'doctor_001'}
+                  />
+                </div>
+              )}
               </div>
             </div>
           </div>
