@@ -471,3 +471,42 @@ export function useInventorySync() {
     searchItems: searchInventory
   };
 }
+
+// Compatibility aliases for existing components
+export const getInventoryItems = getAllInventoryItems;
+export const searchInventoryItems = searchInventory;
+export const getLowStockAlerts = getLowStockItems;
+
+// Additional functions needed by components
+export function getInventoryStats() {
+  const items = getAllInventoryItems();
+  const alerts = getInventoryAlerts();
+
+  return {
+    totalItems: items.length,
+    totalValue: getInventoryValue(),
+    lowStockItems: alerts.lowStock.length,
+    outOfStockItems: alerts.outOfStock.length,
+    expiredItems: alerts.expired.length,
+    categoryCounts: items.reduce((acc, item) => {
+      acc[item.category] = (acc[item.category] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>)
+  };
+}
+
+export function initializeSampleInventory() {
+  // This function is called automatically by getAllInventoryItems
+  // when no inventory exists, so we don't need to do anything here
+  return getAllInventoryItems();
+}
+
+// Interface for compatibility
+export interface InventoryStats {
+  totalItems: number;
+  totalValue: number;
+  lowStockItems: number;
+  outOfStockItems: number;
+  expiredItems: number;
+  categoryCounts: Record<string, number>;
+}
