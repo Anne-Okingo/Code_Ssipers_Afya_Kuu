@@ -60,8 +60,7 @@ export interface FeedbackStats {
   resolvedThisMonth: number;
 }
 
-// Local storage keys
-const FEEDBACK_STORAGE_KEY = 'afya_kuu_feedback';
+// Local storage keys (already defined above)
 
 // Get all feedback items
 export function getAllFeedback(): FeedbackItem[] {
