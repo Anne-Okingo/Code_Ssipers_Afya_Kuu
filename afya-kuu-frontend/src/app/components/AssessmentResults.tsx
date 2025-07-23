@@ -1,14 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { 
-  getRecommendedTests, 
-  getTestCost, 
-  calculateTotalCost, 
+import {
+  getRecommendedTests,
+  getRecommendedTestsFromModelRecommendation,
+  getTestCost,
+  calculateTotalCost,
   formatKES,
   sendSMSReminder,
   generateSMSMessage,
-  type TestCost 
+  type TestCost
 } from '../services/testCostsService';
 
 interface AssessmentResultsProps {
@@ -22,6 +23,10 @@ interface AssessmentResultsProps {
   recommendations: string;
   doctorId: string;
   onSendReminder?: (success: boolean) => void;
+  // Additional props for exact model results
+  riskPrediction?: number; // 0 = Low Risk, 1 = High Risk
+  riskProbability?: number; // Model confidence score
+  modelRiskLevel?: string; // Exact risk level from model
 }
 
 export default function AssessmentResults({
@@ -31,7 +36,10 @@ export default function AssessmentResults({
   riskPercentage,
   recommendations,
   doctorId,
-  onSendReminder
+  onSendReminder,
+  riskPrediction = 0,
+  riskProbability = 0,
+  modelRiskLevel
 }: AssessmentResultsProps) {
   const [showSMSForm, setShowSMSForm] = useState(false);
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
@@ -110,14 +118,15 @@ export default function AssessmentResults({
 
   const t = content[language];
 
-  // Get recommended tests based on risk level
-  const recommendedTestKeys = getRecommendedTests(riskLevel);
+  // Get recommended tests based on model recommendation (not just risk level)
+  const modelRecommendationData = getRecommendedTestsFromModelRecommendation(recommendations);
+  const recommendedTestKeys = modelRecommendationData.tests;
   const recommendedTests = recommendedTestKeys.map(key => ({
     key,
     ...getTestCost(key)!
   }));
-  
-  const totalCost = calculateTotalCost(recommendedTestKeys);
+
+  const totalCost = modelRecommendationData.totalCost;
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
@@ -141,12 +150,12 @@ export default function AssessmentResults({
       const selectedTestsCost = calculateTotalCost(selectedTests);
       const patientIdentifier = patientData.phoneNumber;
 
-      const message = customMessage || `Hello, this is a reminder for your ${selectedTestNames} appointment on ${new Date(scheduledDate).toLocaleDateString('en-KE', {
+      const message = customMessage || `Hello, this is your cervical cancer screening follow-up from Afya Kuu Clinic. ${modelRecommendationData.briefDescription} Appointment: ${new Date(scheduledDate).toLocaleDateString('en-KE', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
-      })} at Afya Kuu Clinic. Cost: ${formatKES(selectedTestsCost)}. Please arrive 30 minutes early. For queries, call us. Thank you.`;
+      })}. Total Cost: ${formatKES(selectedTestsCost)}. Please arrive 30 minutes early. For queries, call us. Thank you.`;
 
       const reminderId = sendSMSReminder({
         patientId: patientData.phoneNumber,
@@ -196,49 +205,116 @@ export default function AssessmentResults({
         </div>
       </div>
 
-      {/* Risk Assessment Results */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          {t.title}
-        </h3>
-        
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{t.riskLevel}:</span>
-            <span className={`px-3 py-1 rounded-full text-sm font-semibold border ${getRiskColor(riskLevel)}`}>
-              {t.riskLevels[riskLevel]}
-            </span>
+      {/* Prominent Risk Assessment Results - Exact Model Results */}
+      <div className={`rounded-2xl p-8 shadow-2xl transition-all duration-300 ${
+        riskPrediction === 1
+          ? 'bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-2 border-red-200 dark:border-red-700'
+          : 'bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-2 border-green-200 dark:border-green-700'
+      }`}>
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            {language === 'en' ? 'Cervical Cancer Risk Assessment Results' : 'Matokeo ya Tathmini ya Hatari ya Saratani ya Mlango wa Kizazi'}
+          </h3>
+
+          {/* Large Risk Percentage Display - Based on Model Prediction */}
+          <div className={`inline-block p-8 rounded-2xl shadow-xl mb-6 transform hover:scale-105 transition-all duration-300 ${
+            riskPrediction === 1
+              ? 'bg-red-500 text-white'
+              : 'bg-green-500 text-white'
+          }`}>
+            <div className="text-6xl font-black mb-2 animate-pulse-slow">
+              {riskPercentage}%
+            </div>
+            <div className="text-xl font-semibold flex items-center justify-center space-x-2">
+              <span>
+                {riskPrediction === 1 ? '⚠️' : '✅'}
+              </span>
+              <span>{modelRiskLevel || (riskPrediction === 1 ? 'High Risk' : 'Low Risk')}</span>
+            </div>
           </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">{t.riskPercentage}:</span>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">{riskPercentage}%</span>
+
+          {/* Model Results Details */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                {language === 'en' ? 'Model Prediction' : 'Utabiri wa Mfumo'}
+              </h4>
+              <p className={`text-lg font-bold ${riskPrediction === 1 ? 'text-red-600' : 'text-green-600'}`}>
+                {riskPrediction === 1 ? 'HIGH RISK' : 'LOW RISK'}
+              </p>
+            </div>
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                {language === 'en' ? 'Risk Percentage' : 'Asilimia ya Hatari'}
+              </h4>
+              <p className="text-lg font-bold text-gray-900 dark:text-white">
+                {riskPercentage}%
+              </p>
+            </div>
+            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-lg p-4">
+              <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-1">
+                {language === 'en' ? 'Model Confidence' : 'Uhakika wa Mfumo'}
+              </h4>
+              <p className="text-lg font-bold text-blue-600">
+                {Math.round(riskProbability * 100)}%
+              </p>
+            </div>
           </div>
-          
-          <div>
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-300 block mb-2">{t.recommendations}:</span>
-            <p className="text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700 p-3 rounded border">
-              {recommendations}
-            </p>
-          </div>
+
+          {/* Risk Level Description */}
+          <p className="text-lg text-gray-700 dark:text-gray-300 mb-4">
+            {language === 'en'
+              ? `Based on the ML model analysis, the patient shows ${riskPrediction === 1 ? 'HIGH' : 'LOW'} risk for cervical cancer with ${riskPercentage}% risk score.`
+              : `Kulingana na uchambuzi wa mfumo wa ML, mgonjwa anaonyesha hatari ya ${riskPrediction === 1 ? 'JUU' : 'CHINI'} ya saratani ya mlango wa kizazi na alama ya hatari ya ${riskPercentage}%.`
+            }
+          </p>
+        </div>
+
+        {/* Clinical Recommendations */}
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-xl p-6 shadow-lg">
+          <h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
+            <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            {t.recommendations}
+          </h4>
+          <p className="text-gray-800 dark:text-gray-200 bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg border-l-4 border-blue-500 text-lg">
+            {recommendations}
+          </p>
         </div>
       </div>
 
-      {/* Recommended Tests and Costs */}
+      {/* Recommended Follow-up Tests - Synced with Model Recommendation */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            {t.followUpTests}
+            {language === 'en' ? 'Recommended Action & Tests' : 'Kitendo na Vipimo Vinavyopendekezwa'}
           </h3>
           <button
             onClick={() => setShowSMSForm(true)}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center space-x-2"
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors flex items-center space-x-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <span>{t.sendReminder}</span>
+            <span>{language === 'en' ? 'Send to Patient' : 'Tumia kwa Mgonjwa'}</span>
           </button>
+        </div>
+
+        {/* Brief Description - SMS Ready */}
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 rounded-r-lg">
+          <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
+            {language === 'en' ? 'Brief Summary for Patient:' : 'Muhtasari kwa Mgonjwa:'}
+          </h4>
+          <p className="text-blue-800 dark:text-blue-300 text-sm leading-relaxed">
+            {modelRecommendationData.briefDescription}
+          </p>
+          <div className="mt-2 flex justify-between items-center">
+            <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              {language === 'en' ? 'Estimated Total Cost:' : 'Jumla ya Gharama:'}
+            </span>
+            <span className="text-lg font-bold text-green-600">{formatKES(totalCost)}</span>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -355,12 +431,12 @@ export default function AssessmentResults({
                   <div className="p-3 bg-gray-50 dark:bg-gray-700 rounded border">
                     <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">Message Preview:</h4>
                     <p className="text-sm text-gray-700 dark:text-gray-300">
-                      {customMessage || `Hello, this is a reminder for your ${selectedTests.map(key => getTestCost(key)?.testName).join(', ')} appointment on ${new Date(scheduledDate).toLocaleDateString('en-KE', {
+                      {customMessage || `Hello, this is your cervical cancer screening follow-up from Afya Kuu Clinic. ${modelRecommendationData.briefDescription} Appointment: ${new Date(scheduledDate).toLocaleDateString('en-KE', {
                         weekday: 'long',
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
-                      })} at Afya Kuu Clinic. Cost: ${formatKES(calculateTotalCost(selectedTests))}. Please arrive 30 minutes early. For queries, call us. Thank you.`}
+                      })}. Total Cost: ${formatKES(calculateTotalCost(selectedTests))}. Please arrive 30 minutes early. For queries, call us. Thank you.`}
                     </p>
                   </div>
                 )}

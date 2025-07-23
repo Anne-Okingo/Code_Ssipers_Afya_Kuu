@@ -10,6 +10,7 @@ import { useTheme } from '../../contexts/ThemeContext';
 import ThemeToggle from '../../components/ThemeToggle';
 import VoiceInput from '../../components/VoiceInput';
 import InventoryManagement from '../../components/InventoryManagement';
+import ResourcesManagement from '../../components/ResourcesManagement';
 import PatientRecords from '../../components/PatientRecords';
 import FeedbackSystem from '../../components/FeedbackSystem';
 import CervicalCancerResults from '../../components/CervicalCancerResults';
@@ -1059,6 +1060,10 @@ export default function DoctorDashboard() {
                         riskPercentage={Math.round(predictionResult.risk_percentage)}
                         recommendations={predictionResult.recommendation}
                         doctorId={user?.id || 'doctor_001'}
+                        // Pass exact model results
+                        riskPrediction={predictionResult.risk_prediction}
+                        riskProbability={predictionResult.risk_probability}
+                        modelRiskLevel={predictionResult.risk_level}
                         onSendReminder={(success) => {
                           if (success) {
                             alert(language === 'en' ? 'SMS reminder sent successfully!' : 'Ukumbusho wa SMS umetumwa kwa ufanisi!');
@@ -1242,21 +1247,12 @@ export default function DoctorDashboard() {
                 <div className={`rounded-2xl shadow-2xl p-8 transition-colors duration-200 ${
                   isDarkMode ? 'bg-gray-800' : 'bg-white'
                 }`}>
-                  <InventoryManagement
+                  <ResourcesManagement
                     language={language}
                     userRole="doctor"
+                    userId={user?.id || 'doctor_001'}
+                    userName={user?.profileName || user?.email || 'Doctor'}
                   />
-                  <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                    <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                      {language === 'en' ? 'Resources & Inventory' : 'Rasilimali na Hifadhi'}
-                    </h3>
-                    <p className="text-blue-700 dark:text-blue-300">
-                      {language === 'en'
-                        ? 'View and manage medical supplies, equipment, and resources available in your facility. Both doctors and admins can add resources to the inventory.'
-                        : 'Ona na simamia vifaa vya matibabu, vifaa, na rasilimali zinazopatikana katika kituo chako. Madaktari na wasimamizi wanaweza kuongeza rasilimali kwenye hifadhi.'
-                      }
-                    </p>
-                  </div>
                 </div>
               )}
 

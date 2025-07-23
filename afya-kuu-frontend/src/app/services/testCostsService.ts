@@ -199,6 +199,68 @@ export function getRecommendedTests(riskLevel: 'LOW' | 'MEDIUM' | 'HIGH'): strin
   }
 }
 
+// Map model recommendations to specific tests and brief descriptions
+export function getRecommendedTestsFromModelRecommendation(recommendation: string): {
+  tests: string[];
+  briefDescription: string;
+  totalCost: number;
+} {
+  const rec = recommendation.toUpperCase();
+
+  if (rec.includes('REPEAT PAP SMEAR IN 3 YEARS')) {
+    const tests = ['follow_up_pap'];
+    return {
+      tests,
+      briefDescription: 'Schedule a follow-up Pap smear test in 3 years for routine screening. This is a standard preventive measure.',
+      totalCost: calculateTotalCost(tests)
+    };
+  }
+
+  if (rec.includes('FOR ANNUAL FOLLOW UP AND PAP SMEAR IN 3 YEARS')) {
+    const tests = ['follow_up_pap', 'via_screening'];
+    return {
+      tests,
+      briefDescription: 'Annual follow-up visits with Pap smear in 3 years. Regular monitoring to ensure continued health.',
+      totalCost: calculateTotalCost(tests)
+    };
+  }
+
+  if (rec.includes('FOR HPV VACCINE, LIFESTYLE AND SEXUAL EDUCATION')) {
+    const tests = ['hpv_test', 'via_screening'];
+    return {
+      tests,
+      briefDescription: 'HPV vaccination recommended along with lifestyle counseling. Includes HPV testing and basic screening.',
+      totalCost: calculateTotalCost(tests)
+    };
+  }
+
+  if (rec.includes('COLPOSCOPY') || rec.includes('BIOPSY')) {
+    const tests = ['colposcopy', 'cervical_biopsy', 'hpv_test'];
+    return {
+      tests,
+      briefDescription: 'Detailed examination with colposcopy and tissue biopsy required for accurate diagnosis.',
+      totalCost: calculateTotalCost(tests)
+    };
+  }
+
+  if (rec.includes('IMMEDIATE') || rec.includes('URGENT')) {
+    const tests = ['colposcopy', 'cervical_biopsy', 'hpv_test', 'pelvic_ultrasound'];
+    return {
+      tests,
+      briefDescription: 'Immediate comprehensive evaluation required. Multiple tests needed for thorough assessment.',
+      totalCost: calculateTotalCost(tests)
+    };
+  }
+
+  // Default case - basic screening
+  const defaultTests = ['pap_smear', 'via_screening'];
+  return {
+    tests: defaultTests,
+    briefDescription: 'Standard cervical cancer screening tests recommended for your health monitoring.',
+    totalCost: calculateTotalCost(defaultTests)
+  };
+}
+
 // SMS Reminder Functions
 export function getAllSMSReminders(): SMSReminder[] {
   if (typeof window === 'undefined') return [];

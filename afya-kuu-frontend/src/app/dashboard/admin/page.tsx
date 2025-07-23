@@ -7,6 +7,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
 import ThemeToggle from '../../components/ThemeToggle';
 import AdminInventoryManagement from '../../components/AdminInventoryManagement';
+import ResourcesManagement from '../../components/ResourcesManagement';
 import PatientRecords from '../../components/PatientRecords';
 import FeedbackSystem from '../../components/FeedbackSystem';
 
@@ -353,27 +354,13 @@ export default function AdminDashboard() {
 
             {/* Resources */}
             {currentView === 'resources' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-gray-900">{t.resources.title}</h2>
-                
-                <div className="grid md:grid-cols-1 lg:grid-cols-1 gap-6">
-                  {t.resources.categories.map((category, index) => (
-                    <div key={index} className="bg-white rounded-lg shadow-sm p-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-4">{category.title}</h3>
-                      <ul className="space-y-2">
-                        {category.items.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex items-center space-x-3">
-                            <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                            <span className="text-gray-700">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                      <button className="mt-4 text-pink-600 hover:text-pink-700 text-sm font-medium">
-                        {language === 'en' ? 'Add New' : 'Ongeza Mpya'}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <ResourcesManagement
+                  language={language}
+                  userRole="admin"
+                  userId={user?.id || 'admin_001'}
+                  userName={user?.profileName || user?.email || 'Admin'}
+                />
               </div>
             )}
 
